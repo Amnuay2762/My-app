@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หารบิล</title>
+<meta name="apple-mobile-web-app-title" content="🧾หารบิล">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0284c7">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230284c7'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' fill='url(%23g)'/%3E%3CforeignObject x='0' y='0' width='180' height='180'%3E%3Cdiv xmlns='http://www.w3.org/1999/xhtml' style='width:180px;height:180px;display:flex;align-items:center;justify-content:center;font-size:110px'%3E%F0%9F%A7%BE%3C/div%3E%3C/foreignObject%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Prompt',-apple-system,sans-serif;
+  color:#fff;padding-bottom:40px;min-height:100vh;
+  background:linear-gradient(135deg,#0ea5e9,#0284c7,#06b6d4,#3b82f6,#0891b2);
+  background-size:400% 400%;
+  animation:bgmove 16s ease infinite;
+}
+@keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+body::before{
+  content:'';position:fixed;top:-120px;right:-100px;
+  width:340px;height:340px;
+  background:radial-gradient(circle,rgba(255,255,255,.45),transparent 65%);
+  border-radius:50%;pointer-events:none;z-index:0;
+  animation:float1 10s ease-in-out infinite;
+}
+body::after{
+  content:'';position:fixed;bottom:-100px;left:-90px;
+  width:300px;height:300px;
+  background:radial-gradient(circle,rgba(56,189,248,.55),transparent 65%);
+  border-radius:50%;pointer-events:none;z-index:0;
+  animation:float2 12s ease-in-out infinite;
+}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,40px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-30px)}}
+
+.hd{text-align:center;font-size:1.3rem;font-weight:700;padding:22px 18px 10px;position:relative;z-index:1;text-shadow:0 2px 14px rgba(0,0,0,.3)}
+.wrap{padding:0 16px;max-width:500px;margin:0 auto;position:relative;z-index:1}
+
+.box{
+  background:rgba(3,80,130,.32);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:20px;padding:18px;margin-bottom:14px;
+  box-shadow:0 8px 32px rgba(0,0,0,.22),inset 0 1px 2px rgba(255,255,255,.3);
+}
+.title{font-size:1rem;font-weight:700;color:#fff;margin-bottom:12px;text-shadow:0 1px 6px rgba(0,0,0,.3)}
+
+label{display:block;font-size:.85rem;color:#fff;font-weight:500;margin-bottom:5px;margin-top:12px;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+label:first-child{margin-top:0}
+input{
+  width:100%;padding:14px;border:1px solid rgba(255,255,255,.4);border-radius:13px;
+  font-size:16px;font-family:inherit;font-weight:500;
+  background:rgba(255,255,255,.2);color:#fff;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+input::placeholder{color:rgba(255,255,255,.65)}
+input:focus{outline:none;border-color:rgba(255,255,255,.85);background:rgba(255,255,255,.3)}
+input.small{padding:10px;font-size:15px}
+
+/* ═══ ปุ่มโหมด - ใหญ่ + Liquid Glass ═══ */
+.mode{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;position:relative;z-index:1}
+.mode button{
+  padding:26px 10px;min-height:84px;
+  border:1.5px solid rgba(255,255,255,.45);border-radius:24px;
+  font-size:1.05rem;font-weight:700;font-family:inherit;
+  background:linear-gradient(135deg,rgba(255,255,255,.3),rgba(255,255,255,.08));
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.3);
+  box-shadow:0 8px 28px rgba(0,0,0,.18),inset 0 2px 4px rgba(255,255,255,.55),inset 0 -3px 6px rgba(0,0,0,.12);
+  position:relative;overflow:hidden;transition:all .25s ease;
+}
+.mode button::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:55%;
+  background:linear-gradient(180deg,rgba(255,255,255,.5),transparent);
+  border-radius:24px 24px 60% 60%;pointer-events:none;
+}
+.mode button::after{
+  content:'';position:absolute;top:10px;left:16px;
+  width:30px;height:14px;
+  background:radial-gradient(ellipse,rgba(255,255,255,.8),transparent 70%);
+  border-radius:50%;pointer-events:none;transform:rotate(-20deg);
+}
+.mode button.on{
+  background:linear-gradient(135deg,#ffffff,#dbeafe);
+  border-color:#fff;color:#0284c7;text-shadow:none;
+  box-shadow:0 10px 36px rgba(255,255,255,.65),inset 0 2px 5px rgba(255,255,255,.95),inset 0 -2px 5px rgba(2,132,199,.1);
+  transform:scale(1.04);
+}
+.mode button.on::after{background:radial-gradient(ellipse,rgba(255,255,255,.95),transparent 70%)}
+
+/* ปุ่มชนิดส่วนลด */
+.dt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.dt button{
+  padding:13px;border:1px solid rgba(255,255,255,.35);border-radius:13px;
+  font-size:.88rem;font-weight:600;font-family:inherit;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.06));
+  color:rgba(255,255,255,.85);text-shadow:0 1px 3px rgba(0,0,0,.3);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.35);transition:all .25s ease;
+}
+.dt button.on{
+  background:linear-gradient(135deg,#ffffff,#e0f2fe);
+  border-color:#fff;color:#0284c7;text-shadow:none;
+  box-shadow:0 4px 20px rgba(255,255,255,.5),inset 0 1px 3px rgba(255,255,255,.9);
+  transform:scale(1.03);
+}
+
+.stepper{display:flex;align-items:center;border:1px solid rgba(255,255,255,.35);border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.06))}
+.stepper button{width:52px;height:52px;border:none;background:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,.1));color:#fff;font-size:1.6rem;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.3);box-shadow:inset 0 1px 2px rgba(255,255,255,.4);transition:all .15s}
+.stepper button:active{background:#fff;color:#0284c7;transform:scale(.95)}
+.stepper .num{flex:1;text-align:center;font-size:1.4rem;font-weight:700;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.3)}
+
+.tip-row{display:flex;gap:8px;margin-top:8px}
+.tip-row button{
+  flex:1;padding:12px;border:1px solid rgba(255,255,255,.35);border-radius:13px;
+  background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.06));
+  color:rgba(255,255,255,.85);font-weight:600;font-family:inherit;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.3);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.35);transition:all .25s ease;
+}
+.tip-row button.on{
+  background:linear-gradient(135deg,#ffffff,#e0f2fe);
+  color:#0284c7;text-shadow:none;border-color:#fff;
+  box-shadow:0 4px 20px rgba(255,255,255,.5),inset 0 1px 3px rgba(255,255,255,.9);
+  transform:scale(1.05);
+}
+
+.result-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(56,189,248,.3));
+  backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1.5px solid rgba(255,255,255,.6);border-radius:24px;
+  padding:24px;text-align:center;margin-bottom:14px;
+  box-shadow:0 8px 45px rgba(56,189,248,.5),inset 0 2px 4px rgba(255,255,255,.6),inset 0 -2px 6px rgba(0,0,0,.1);
+  position:relative;overflow:hidden;
+}
+.result-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:48%;
+  background:linear-gradient(180deg,rgba(255,255,255,.45),transparent);
+  border-radius:24px 24px 50% 50%;pointer-events:none;
+}
+.result-card .rlbl{font-size:.88rem;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+.result-card .rbig{font-size:2.7rem;font-weight:700;margin:6px 0;color:#fff;text-shadow:0 2px 16px rgba(255,255,255,.5),0 2px 8px rgba(0,0,0,.25);position:relative}
+.result-card .rsub{font-size:.88rem;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+.line{display:flex;justify-content:space-between;padding:9px 0;font-size:.92rem;border-bottom:1px solid rgba(255,255,255,.2)}
+.line:last-child{border:none}
+.line .lk{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.line .lv{font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.line.total{font-size:1.15rem;font-weight:700;padding-top:12px}
+.line.total .lv{color:#fff}
+.line.save .lv{color:#a7f3d0;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+.person-item{border:1px solid rgba(255,255,255,.3);border-radius:16px;padding:12px;margin-bottom:10px;background:rgba(255,255,255,.14)}
+.person-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.person-head input{flex:1;padding:10px;font-weight:600}
+.person-head .del{width:40px;height:40px;border:none;background:linear-gradient(135deg,rgba(244,63,94,.6),rgba(244,63,94,.35));color:#fff;border-radius:11px;font-size:1.1rem;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(255,255,255,.3)}
+.person-sum{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:#fff;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.person-sum b{color:#fff;font-size:1.05rem}
+.addbtn{
+  width:100%;padding:14px;border:1.5px dashed rgba(255,255,255,.55);border-radius:14px;
+  background:linear-gradient(135deg,rgba(255,255,255,.2),rgba(255,255,255,.06));
+  color:#fff;font-weight:600;font-family:inherit;font-size:.92rem;text-shadow:0 1px 3px rgba(0,0,0,.3);transition:all .2s;
+}
+.addbtn:active{background:#fff;color:#0284c7;text-shadow:none}
+
+.ppl-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.18)}
+.ppl-row:last-child{border:none}
+.ppl-row .who{display:flex;align-items:center;gap:10px}
+.ppl-row .ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,.15));display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 1px 2px rgba(255,255,255,.5)}
+.ppl-row .nm{font-weight:600;font-size:.95rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.ppl-row .sub{font-size:.74rem;color:#fff;opacity:.85}
+.ppl-row .pay{font-weight:700;color:#fff;font-size:1.15rem;text-shadow:0 1px 8px rgba(255,255,255,.4),0 1px 4px rgba(0,0,0,.25)}
+
+.note{font-size:.8rem;color:#fff;opacity:.85;text-align:center;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="hd">🧾 หารบิล</div>
+
+<div class="wrap">
+
+  <div class="mode">
+    <button id="mEqual" class="on" onclick="setMode('equal')">⚖️ หารเท่ากัน</button>
+    <button id="mCustom" onclick="setMode('custom')">🍽️ หารตามจริง</button>
+  </div>
+
+  <div id="equalBox">
+    <div class="box">
+      <div class="title">💵 ยอดรวมทั้งบิล</div>
+      <input type="number" id="billAmt" inputmode="decimal" placeholder="0" oninput="calc()">
+    </div>
+    <div class="box">
+      <div class="title">👥 หารกี่คน</div>
+      <div class="stepper">
+        <button onclick="changePeople(-1)">−</button>
+        <div class="num" id="peopleNum">2</div>
+        <button onclick="changePeople(1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="customBox" class="hide">
+    <div class="box">
+      <div class="title">🍽️ ใครสั่งอะไร เท่าไหร่</div>
+      <div id="personList"></div>
+      <button class="addbtn" onclick="addPerson()">+ เพิ่มคน</button>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="title">🎁 ส่วนลด</div>
+    <div class="dt">
+      <button id="dPct" class="on" onclick="setDiscType('pct')">% เปอร์เซ็นต์</button>
+      <button id="dBaht" onclick="setDiscType('baht')">฿ จำนวนเงิน</button>
+    </div>
+    <div id="pctBox">
+      <label>ลดกี่ %</label>
+      <input type="number" id="discPct" inputmode="decimal" placeholder="0" oninput="calc()">
+      <label>ลดได้สูงสุด (บาท) — ใส่ 0 ถ้าไม่จำกัด</label>
+      <input type="number" id="discMax" inputmode="decimal" placeholder="0" oninput="calc()">
+    </div>
+    <div id="bahtBox" class="hide">
+      <label>ลดเป็นเงิน (บาท)</label>
+      <input type="number" id="discBaht" inputmode="decimal" placeholder="0" oninput="calc()">
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="title">🛵 ค่าส่ง / ทิป</div>
+    <label>ค่าส่ง Grab / อื่นๆ (บาท)</label>
+    <input type="number" id="deliveryFee" inputmode="decimal" placeholder="0" oninput="calc()">
+    <label>ทิป</label>
+    <div class="tip-row">
+      <button class="tip-btn on" onclick="setTip(0,this)">ไม่ทิป</button>
+      <button class="tip-btn" onclick="setTip(5,this)">5%</button>
+      <button class="tip-btn" onclick="setTip(10,this)">10%</button>
+      <button class="tip-btn" onclick="setTip(15,this)">15%</button>
+    </div>
+  </div>
+
+  <div id="equalResult">
+    <div class="result-card">
+      <div class="rlbl">แต่ละคนจ่าย</div>
+      <div class="rbig" id="perPerson">฿0</div>
+      <div class="rsub" id="perSub">หาร 2 คน</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="title">📋 สรุปบิล</div>
+    <div class="line"><span class="lk">ยอดอาหาร</span><span class="lv" id="dBill">฿0</span></div>
+    <div class="line save"><span class="lk">ส่วนลด</span><span class="lv" id="dDisc">-฿0</span></div>
+    <div class="line"><span class="lk">ค่าส่ง</span><span class="lv" id="dDel">฿0</span></div>
+    <div class="line"><span class="lk">ทิป</span><span class="lv" id="dTip">฿0</span></div>
+    <div class="line total"><span class="lk">รวมจ่ายจริง</span><span class="lv" id="dTotal">฿0</span></div>
+  </div>
+
+  <div class="box">
+    <div class="title">🧑‍🤝‍🧑 ใครจ่ายเท่าไหร่</div>
+    <div id="pplList"></div>
+  </div>
+
+  <div class="note" id="noteText">💡 หารเท่ากันทุกคน</div>
+
+</div>
+
+<script>
+var mode='equal';
+var discType='pct';
+var tipPct=0;
+var people=2;
+var persons=[{name:'',amount:''},{name:'',amount:''}];
+
+function setMode(m){
+  mode=m;
+  document.getElementById('mEqual').className=(m==='equal'?'on':'');
+  document.getElementById('mCustom').className=(m==='custom'?'on':'');
+  document.getElementById('equalBox').className=(m==='equal'?'':'hide');
+  document.getElementById('customBox').className=(m==='custom'?'':'hide');
+  document.getElementById('equalResult').className=(m==='equal'?'':'hide');
+  document.getElementById('noteText').textContent=(m==='equal'?'💡 หารเท่ากันทุกคน':'💡 ส่วนลด/ค่าส่ง/ทิป หารตามสัดส่วน');
+  calc();
+}
+
+function setDiscType(t){
+  discType=t;
+  document.getElementById('dPct').className=(t==='pct'?'on':'');
+  document.getElementById('dBaht').className=(t==='baht'?'on':'');
+  document.getElementById('pctBox').className=(t==='pct'?'':'hide');
+  document.getElementById('bahtBox').className=(t==='baht'?'':'hide');
+  calc();
+}
+
+function setTip(p,el){
+  tipPct=p;
+  var btns=document.getElementsByClassName('tip-btn');
+  for(var i=0;i<btns.length;i++)btns[i].className='tip-btn';
+  el.className='tip-btn on';
+  calc();
+}
+
+function changePeople(d){
+  people=people+d;
+  if(people<1)people=1;
+  if(people>50)people=50;
+  document.getElementById('peopleNum').textContent=people;
+  calc();
+}
+
+function addPerson(){
+  persons.push({name:'',amount:''});
+  renderPersons();
+  calc();
+}
+function delPerson(i){
+  if(persons.length<=1)return;
+  persons.splice(i,1);
+  renderPersons();
+  calc();
+}
+
+function renderPersons(){
+  var box=document.getElementById('personList');
+  box.innerHTML='';
+  for(var i=0;i<persons.length;i++){
+    var item=document.createElement('div');
+    item.className='person-item';
+
+    var head=document.createElement('div');
+    head.className='person-head';
+
+    var nameInput=document.createElement('input');
+    nameInput.type='text';
+    nameInput.placeholder='ชื่อคนที่ '+(i+1);
+    nameInput.value=persons[i].name;
+    nameInput.setAttribute('data-idx',i);
+    nameInput.oninput=function(){
+      var idx=parseInt(this.getAttribute('data-idx'));
+      persons[idx].name=this.value;
+      calc();
+    };
+
+    var delBtn=document.createElement('button');
+    delBtn.className='del';
+    delBtn.textContent='🗑️';
+    delBtn.setAttribute('data-idx',i);
+    delBtn.onclick=function(){
+      var idx=parseInt(this.getAttribute('data-idx'));
+      delPerson(idx);
+    };
+
+    head.appendChild(nameInput);
+    head.appendChild(delBtn);
+
+    var amtInput=document.createElement('input');
+    amtInput.type='number';
+    amtInput.className='small';
+    amtInput.setAttribute('inputmode','decimal');
+    amtInput.placeholder='ค่าอาหารที่สั่ง (บาท)';
+    amtInput.value=persons[i].amount;
+    amtInput.setAttribute('data-idx',i);
+    amtInput.oninput=function(){
+      var idx=parseInt(this.getAttribute('data-idx'));
+      persons[idx].amount=this.value;
+      calc();
+    };
+
+    var sum=document.createElement('div');
+    sum.className='person-sum';
+    sum.innerHTML='จ่ายจริง <b id="pPay'+i+'">฿0</b>';
+
+    item.appendChild(head);
+    item.appendChild(amtInput);
+    item.appendChild(sum);
+    box.appendChild(item);
+  }
+}
+
+function money(n){return '฿'+n.toLocaleString('th-TH',{maximumFractionDigits:2});}
+
+function calc(){
+  var bill=0;
+  if(mode==='equal'){
+    bill=parseFloat(document.getElementById('billAmt').value)||0;
+  }else{
+    for(var i=0;i<persons.length;i++)bill=bill+(parseFloat(persons[i].amount)||0);
+  }
+
+  var disc=0;
+  if(discType==='pct'){
+    var pct=parseFloat(document.getElementById('discPct').value)||0;
+    var max=parseFloat(document.getElementById('discMax').value)||0;
+    disc=bill*pct/100;
+    if(max>0&&disc>max)disc=max;
+  }else{
+    disc=parseFloat(document.getElementById('discBaht').value)||0;
+  }
+  if(disc>bill)disc=bill;
+  var afterDisc=bill-disc;
+
+  var del=parseFloat(document.getElementById('deliveryFee').value)||0;
+  var tip=afterDisc*tipPct/100;
+  var total=afterDisc+del+tip;
+
+  document.getElementById('dBill').textContent=money(bill);
+  document.getElementById('dDisc').textContent='-'+money(disc);
+  document.getElementById('dDel').textContent=money(del);
+  document.getElementById('dTip').textContent=money(tip);
+  document.getElementById('dTotal').textContent=money(total);
+
+  if(mode==='equal'){
+    var per=total/people;
+    document.getElementById('perPerson').textContent=money(per);
+    document.getElementById('perSub').textContent='หาร '+people+' คน';
+    var perFloor=Math.floor(per*100)/100;
+    var html='';
+    for(var i=0;i<people;i++){
+      var pay;
+      if(i===0)pay=Math.round((total-perFloor*(people-1))*100)/100;
+      else pay=perFloor;
+      html=html+'<div class="ppl-row"><div class="who"><div class="ava">👤</div><div class="nm">คนที่ '+(i+1)+'</div></div><div class="pay">'+money(pay)+'</div></div>';
+    }
+    document.getElementById('pplList').innerHTML=html;
+  }else{
+    var extra=del+tip-disc;
+    var html='';
+    for(var i=0;i<persons.length;i++){
+      var amt=parseFloat(persons[i].amount)||0;
+      var share=0;
+      if(bill>0)share=extra*(amt/bill);
+      else if(persons.length>0)share=extra/persons.length;
+      var pay=amt+share;
+      if(pay<0)pay=0;
+      var pe=document.getElementById('pPay'+i);
+      if(pe)pe.textContent=money(pay);
+      var nm=persons[i].name||('คนที่ '+(i+1));
+      html=html+'<div class="ppl-row"><div class="who"><div class="ava">👤</div><div><div class="nm">'+nm+'</div><div class="sub">สั่ง '+money(amt)+'</div></div></div><div class="pay">'+money(pay)+'</div></div>';
+    }
+    document.getElementById('pplList').innerHTML=html;
+  }
+}
+
+window.onload=function(){
+  renderPersons();
+  calc();
+};
+</script>
+</body>
+</html>
