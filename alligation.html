@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คำนวณผสมสารละลาย</title>
+<meta name="apple-mobile-web-app-title" content="Alligation">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d9488">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230d9488'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' fill='url(%23g)'/%3E%3CforeignObject x='0' y='0' width='180' height='180'%3E%3Cdiv xmlns='http://www.w3.org/1999/xhtml' style='width:180px;height:180px;display:flex;align-items:center;justify-content:center;font-size:100px'%3E%F0%9F%92%89%3C/div%3E%3C/foreignObject%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Prompt',-apple-system,sans-serif;background:#f0fdfa;color:#134e4a;padding-bottom:40px}
+.hd{background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;padding:18px;text-align:center}
+.hd h1{font-size:1.15rem;font-weight:700}
+.hd p{font-size:.75rem;opacity:.9;margin-top:3px;font-weight:400}
+.wrap{padding:16px;max-width:520px;margin:0 auto}
+
+.warn{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:.78rem;color:#991b1b;line-height:1.6}
+.warn b{display:block;margin-bottom:3px}
+
+.box{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.07);margin-bottom:14px}
+.title{font-size:.95rem;font-weight:700;color:#0d9488;margin-bottom:6px}
+.sub{font-size:.74rem;color:#999;margin-bottom:12px;line-height:1.5}
+
+label{display:block;font-size:.82rem;color:#555;font-weight:600;margin-bottom:5px;margin-top:14px}
+label:first-child{margin-top:0}
+.unit{font-size:.72rem;color:#999;font-weight:400}
+input{width:100%;padding:14px;border:1.5px solid #ccfbf1;border-radius:11px;font-size:16px;font-family:inherit;background:#fff;color:#134e4a}
+input:focus{outline:none;border-color:#0d9488}
+
+.calcbtn{width:100%;padding:16px;background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;margin-top:18px}
+
+.result{display:none;margin-top:4px}
+.rmain{background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;border-radius:16px;padding:20px;margin-bottom:12px}
+.rmain .rt{font-size:.85rem;opacity:.9;text-align:center;margin-bottom:14px}
+.rrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.rrow:last-child{border:none}
+.rrow .rk{font-size:.88rem;opacity:.95}
+.rrow .rv{font-size:1.5rem;font-weight:700}
+.rrow .rv small{font-size:.8rem;font-weight:400;opacity:.85}
+
+.verify{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;font-size:.82rem;color:#065f46;line-height:1.7}
+.verify b{color:#047857}
+.steps{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-top:12px;font-size:.8rem;color:#475569;line-height:1.8}
+.steps .sh{font-weight:700;color:#334155;margin-bottom:6px}
+.err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:12px;padding:14px;font-size:.85rem;line-height:1.6;margin-top:12px;display:none}
+
+.feas{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:600;padding:10px 12px;border-radius:10px;margin-top:10px}
+.feas.ok{background:#ecfdf5;color:#047857}
+.feas.no{background:#fef2f2;color:#dc2626}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <h1>💉 คำนวณผสมสารละลาย</h1>
+  <p>Alligation Method — กรอกค่าได้ทุกช่อง</p>
+</div>
+
+<div class="wrap">
+
+  <div class="warn">
+    <b>⚠️ คำเตือนสำคัญ</b>
+    เครื่องช่วยคำนวณเท่านั้น ต้องให้เภสัชกร/แพทย์ตรวจสอบยืนยันก่อนใช้กับผู้ป่วยทุกครั้ง ตรวจทานหน่วยและความปลอดภัยตามมาตรฐานสถานพยาบาล
+  </div>
+
+  <div class="box">
+    <div class="title">📝 กรอกค่าตามที่แพทย์สั่ง</div>
+    <div class="sub">ใส่ % ความเข้มข้นและปริมาตรได้อิสระ ปรับได้ทุกเคส</div>
+
+    <label>ความเข้มข้นที่ต้องการ (ที่แพทย์สั่ง) <span class="unit">— %</span></label>
+    <input type="number" id="cTarget" inputmode="decimal" placeholder="เช่น 30">
+
+    <label>ปริมาตรที่ต้องการ <span class="unit">— ml</span></label>
+    <input type="number" id="vTotal" inputmode="decimal" placeholder="เช่น 1000">
+
+    <label>สารละลาย A — ความเข้มข้นสูง <span class="unit">— %</span></label>
+    <input type="number" id="cHigh" inputmode="decimal" placeholder="เช่น 50">
+
+    <label>สารละลาย B — ความเข้มข้นต่ำ <span class="unit">— %</span></label>
+    <input type="number" id="cLow" inputmode="decimal" placeholder="เช่น 10">
+
+    <button class="calcbtn" onclick="calc()">🧮 คำนวณ</button>
+
+    <div class="err" id="errBox"></div>
+  </div>
+
+  <div class="result" id="resultBox">
+    <div class="rmain">
+      <div class="rt" id="rTitle">ปริมาตรที่ต้องใช้</div>
+      <div class="rrow">
+        <div class="rk" id="kHigh">สาร A (สูง)</div>
+        <div class="rv" id="vHigh">0 <small>ml</small></div>
+      </div>
+      <div class="rrow">
+        <div class="rk" id="kLow">สาร B (ต่ำ)</div>
+        <div class="rv" id="vLow">0 <small>ml</small></div>
+      </div>
+    </div>
+
+    <div class="verify" id="verifyBox"></div>
+    <div class="steps" id="stepsBox"></div>
+  </div>
+
+</div>
+
+<script>
+function fmt(n){
+  return Math.round(n*100)/100;
+}
+
+function calc(){
+  var err=document.getElementById('errBox');
+  var res=document.getElementById('resultBox');
+  err.style.display='none';
+  res.style.display='none';
+
+  var target=parseFloat(document.getElementById('cTarget').value);
+  var vtotal=parseFloat(document.getElementById('vTotal').value);
+  var high=parseFloat(document.getElementById('cHigh').value);
+  var low=parseFloat(document.getElementById('cLow').value);
+
+  // ตรวจสอบ input
+  if(isNaN(target)||isNaN(vtotal)||isNaN(high)||isNaN(low)){
+    err.textContent='⚠️ กรุณากรอกค่าให้ครบทุกช่อง';
+    err.style.display='block';return;
+  }
+  if(vtotal<=0){
+    err.textContent='⚠️ ปริมาตรต้องมากกว่า 0';
+    err.style.display='block';return;
+  }
+  if(high<=low){
+    err.textContent='⚠️ ความเข้มข้นสูง (A) ต้องมากกว่าความเข้มข้นต่ำ (B)';
+    err.style.display='block';return;
+  }
+  // ความเข้มข้นเป้าหมายต้องอยู่ระหว่าง low กับ high
+  if(target>high||target<low){
+    err.innerHTML='⚠️ ความเข้มข้นที่ต้องการ ('+target+'%) ต้องอยู่ระหว่าง '+low+'% ถึง '+high+'%<br>ไม่สามารถผสมให้ได้ค่านี้';
+    err.style.display='block';return;
+  }
+
+  // Alligation
+  // ส่วนของ A (สูง) = target - low
+  // ส่วนของ B (ต่ำ) = high - target
+  var partHigh=target-low;
+  var partLow=high-target;
+  var partTotal=partHigh+partLow; // = high - low
+
+  var volHigh=vtotal*partHigh/partTotal;
+  var volLow=vtotal*partLow/partTotal;
+
+  // แสดงผล
+  document.getElementById('rTitle').textContent='ผสมให้ได้ '+target+'% ปริมาตร '+fmt(vtotal)+' ml';
+  document.getElementById('kHigh').textContent='สาร A — '+high+'%';
+  document.getElementById('kLow').textContent='สาร B — '+low+'%';
+  document.getElementById('vHigh').innerHTML=fmt(volHigh)+' <small>ml</small>';
+  document.getElementById('vLow').innerHTML=fmt(volLow)+' <small>ml</small>';
+
+  // ตรวจสอบย้อนกลับ
+  var checkConc=(volHigh*high+volLow*low)/vtotal;
+  document.getElementById('verifyBox').innerHTML=
+    '<b>✅ ตรวจสอบย้อนกลับ</b><br>'+
+    '('+fmt(volHigh)+' ml × '+high+'%) + ('+fmt(volLow)+' ml × '+low+'%)<br>'+
+    '÷ '+fmt(vtotal)+' ml = <b>'+fmt(checkConc)+'%</b> '+(Math.abs(checkConc-target)<0.01?'✓ ตรงตามสั่ง':'')+
+    '<br>รวมปริมาตร: '+fmt(volHigh)+' + '+fmt(volLow)+' = <b>'+fmt(volHigh+volLow)+' ml</b>';
+
+  // แสดงวิธีคำนวณ
+  document.getElementById('stepsBox').innerHTML=
+    '<div class="sh">📐 วิธีคำนวณ (Alligation)</div>'+
+    'สัดส่วนสาร A = เป้าหมาย − ต่ำ = '+target+' − '+low+' = <b>'+fmt(partHigh)+'</b><br>'+
+    'สัดส่วนสาร B = สูง − เป้าหมาย = '+high+' − '+target+' = <b>'+fmt(partLow)+'</b><br>'+
+    'รวมสัดส่วน = '+fmt(partTotal)+'<br><br>'+
+    'สาร A = '+fmt(vtotal)+' × '+fmt(partHigh)+'/'+fmt(partTotal)+' = <b>'+fmt(volHigh)+' ml</b><br>'+
+    'สาร B = '+fmt(vtotal)+' × '+fmt(partLow)+'/'+fmt(partTotal)+' = <b>'+fmt(volLow)+' ml</b>';
+
+  res.style.display='block';
+}
+</script>
+</body>
+</html>
