@@ -34,7 +34,6 @@ label:first-child{margin-top:0}
 .unit{font-size:.72rem;color:#999;font-weight:400}
 input,select{width:100%;padding:14px;border:1.5px solid #ccfbf1;border-radius:11px;font-size:16px;font-family:inherit;background:#fff;color:#134e4a}
 input:focus,select:focus{outline:none;border-color:#0d9488}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 .calcbtn{width:100%;padding:16px;background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;margin-top:18px}
 
@@ -45,18 +44,18 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
 .addstock{width:100%;padding:12px;border:1.5px dashed #0d9488;border-radius:11px;background:#f0fdfa;color:#0d9488;font-weight:600;font-family:inherit;font-size:.85rem;margin-top:6px}
 
 .result{display:none;margin-top:4px}
-.sol-card{background:#fff;border:2px solid #0d9488;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(13,148,136,.15)}
-.sol-card.best{background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;border-color:#0d9488}
-.sol-rank{font-size:.72rem;font-weight:700;opacity:.9;margin-bottom:8px}
-.sol-card.best .sol-rank{color:#fff}
-.sol-mix{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.08)}
-.sol-card.best .sol-mix{border-color:rgba(255,255,255,.25)}
-.sol-mix .sm-name{font-size:.85rem;font-weight:600}
-.sol-mix .sm-vol{font-size:1.2rem;font-weight:700;white-space:nowrap}
-.sol-check{font-size:.76rem;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08);line-height:1.6;opacity:.9}
-.sol-card.best .sol-check{border-color:rgba(255,255,255,.25)}
+.sol-card{background:linear-gradient(135deg,#0d9488,#06b6d4);color:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(13,148,136,.25)}
+.sol-mix{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.25)}
+.sol-mix:last-of-type{border:none}
+.sol-mix .sm-name{font-size:.88rem;font-weight:600}
+.sol-mix .sm-sub{font-size:.7rem;opacity:.85;font-weight:400}
+.sol-mix .sm-vol{font-size:1.4rem;font-weight:700;white-space:nowrap}
+.sol-check{font-size:.8rem;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25);line-height:1.7}
 
-.noresult{background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:16px;font-size:.85rem;line-height:1.6}
+.infobox{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:12px;padding:14px;font-size:.8rem;color:#065f46;line-height:1.7;margin-bottom:12px}
+.infobox b{color:#047857}
+.alertbox{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px;font-size:.82rem;color:#92400e;line-height:1.6;margin-bottom:12px}
+.alertbox b{color:#b45309}
 .err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:12px;padding:14px;font-size:.85rem;line-height:1.6;margin-top:12px;display:none}
 .hide{display:none}
 </style>
@@ -65,14 +64,14 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
 
 <div class="hd">
   <h1>💉 คำนวณผสมน้ำเกลือ</h1>
-  <p>หาคู่ที่ผสมได้ glucose + NaCl ตรงตามสั่ง</p>
+  <p>Alligation — เพิ่มความเข้มข้น Glucose</p>
 </div>
 
 <div class="wrap">
 
   <div class="warn">
     <b>⚠️ คำเตือนสำคัญ</b>
-    เครื่องช่วยคำนวณเท่านั้น ต้องให้เภสัชกร/แพทย์ตรวจสอบยืนยันก่อนใช้กับผู้ป่วยทุกครั้ง ระวังความเข้มข้นสูง (glucose ≥10-12.5% ควรให้ทาง central line)
+    เครื่องช่วยคำนวณเท่านั้น ต้องให้เภสัชกร/แพทย์ตรวจสอบยืนยันก่อนใช้กับผู้ป่วยทุกครั้ง
   </div>
 
   <div class="tabs">
@@ -83,28 +82,21 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
   <div id="calcTab">
     <div class="box">
       <div class="title">📝 คำสั่งแพทย์</div>
-      <div class="sub">เลือกน้ำเกลือเป้าหมายจากรายการ หรือใส่ % เอง</div>
+      <div class="sub">เลือกน้ำเกลือฐาน + ตัวเพิ่มความเข้มข้น → คำนวณจาก Glucose</div>
 
-      <label>เลือกความเข้มข้นเป้าหมายจากรายการ</label>
-      <select id="targetPick">
-        <option value="">— เลือก หรือใส่ % เองด้านล่าง —</option>
-      </select>
+      <label>① น้ำเกลือฐาน (ตัวที่แพทย์ระบุ เช่น D-10-S1/2)</label>
+      <select id="baseSol"></select>
 
-      <div class="row2">
-        <div>
-          <label>Glucose <span class="unit">%</span></label>
-          <input type="number" id="tGlu" inputmode="decimal" placeholder="เช่น 30">
-        </div>
-        <div>
-          <label>NaCl <span class="unit">%</span></label>
-          <input type="number" id="tNacl" inputmode="decimal" placeholder="เช่น 0.45">
-        </div>
-      </div>
+      <label>② ตัวเพิ่มความเข้มข้น (เช่น 50% Glucose)</label>
+      <select id="addSol"></select>
 
-      <label>ปริมาตรที่ต้องการ <span class="unit">ml</span></label>
+      <label>③ Glucose เป้าหมาย <span class="unit">% (ที่แพทย์สั่ง)</span></label>
+      <input type="number" id="tGlu" inputmode="decimal" placeholder="เช่น 12.5">
+
+      <label>④ ปริมาตรที่ต้องการ <span class="unit">ml</span></label>
       <input type="number" id="tVol" inputmode="decimal" placeholder="เช่น 1000">
 
-      <button class="calcbtn" id="btnCalc">🔍 หาสูตรผสม</button>
+      <button class="calcbtn" id="btnCalc">🧮 คำนวณ</button>
       <div class="err" id="errBox"></div>
     </div>
 
@@ -148,14 +140,12 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
 
   var stock=[];
   try{
-    var saved=localStorage.getItem('ivStock');
+    var saved=localStorage.getItem('ivStock2');
     if(saved)stock=JSON.parse(saved);
   }catch(e){stock=[];}
   if(!stock||!stock.length)stock=JSON.parse(JSON.stringify(DEFAULT_STOCK));
 
-  function saveStock(){
-    try{localStorage.setItem('ivStock',JSON.stringify(stock));}catch(e){}
-  }
+  function saveStock(){try{localStorage.setItem('ivStock2',JSON.stringify(stock));}catch(e){}}
   function round2(n){return Math.round(n*100)/100;}
   function $(id){return document.getElementById(id);}
 
@@ -167,23 +157,20 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
     if(t==='stock')renderStock();
   }
 
-  function fillTargetDropdown(){
-    var sel=$('targetPick');
-    sel.innerHTML='<option value="">— เลือก หรือใส่ % เองด้านล่าง —</option>';
+  function fillDropdowns(){
+    var base=$('baseSol'), add=$('addSol');
+    base.innerHTML=''; add.innerHTML='';
     for(var i=0;i<stock.length;i++){
-      var o=document.createElement('option');
-      o.value=i;
-      o.textContent=stock[i].name+'  (G'+stock[i].g+'% N'+stock[i].n+'%)';
-      sel.appendChild(o);
+      var s=stock[i];
+      var label=s.name+'  (G'+s.g+'% N'+s.n+'%)';
+      var o1=document.createElement('option');o1.value=i;o1.textContent=label;base.appendChild(o1);
+      var o2=document.createElement('option');o2.value=i;o2.textContent=label;add.appendChild(o2);
     }
-  }
-
-  function pickTarget(){
-    var idx=$('targetPick').value;
-    if(idx==='')return;
-    var s=stock[parseInt(idx,10)];
-    $('tGlu').value=s.g;
-    $('tNacl').value=s.n;
+    // ตั้งค่าเริ่มต้น: ฐาน=D-10-S1/2, เพิ่ม=50% Glucose
+    for(var k=0;k<stock.length;k++){
+      if(stock[k].name==='D-10-S1/2')base.value=k;
+      if(stock[k].g>=50)add.value=k;
+    }
   }
 
   function renderStock(){
@@ -197,15 +184,11 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
         info.className='si-name';
         info.innerHTML=stock[idx].name+'<div class="si-val">G '+stock[idx].g+'% • NaCl '+stock[idx].n+'% • '+stock[idx].vol+'ml</div>';
         var del=document.createElement('button');
-        del.className='si-del';
-        del.textContent='🗑️';
+        del.className='si-del';del.textContent='🗑️';
         del.addEventListener('click',function(){
-          if(confirm('ลบ '+stock[idx].name+' ?')){
-            stock.splice(idx,1);saveStock();renderStock();fillTargetDropdown();
-          }
+          if(confirm('ลบ '+stock[idx].name+' ?')){stock.splice(idx,1);saveStock();renderStock();fillDropdowns();}
         });
-        item.appendChild(info);
-        item.appendChild(del);
+        item.appendChild(info);item.appendChild(del);
         box.appendChild(item);
       })(i);
     }
@@ -214,116 +197,84 @@ input:focus,select:focus{outline:none;border-color:#0d9488}
   function addStock(){
     var name=prompt('ชื่อน้ำเกลือ:');
     if(!name)return;
-    var g=parseFloat(prompt('Glucose % (ใส่ 0 ถ้าไม่มี):','0'));
-    if(isNaN(g))g=0;
-    var n=parseFloat(prompt('NaCl % (ใส่ 0 ถ้าไม่มี):','0'));
-    if(isNaN(n))n=0;
-    var vol=parseFloat(prompt('ปริมาตรขวด (ml):','1000'));
-    if(isNaN(vol))vol=1000;
+    var g=parseFloat(prompt('Glucose % (0 ถ้าไม่มี):','0'));if(isNaN(g))g=0;
+    var n=parseFloat(prompt('NaCl % (0 ถ้าไม่มี):','0'));if(isNaN(n))n=0;
+    var vol=parseFloat(prompt('ปริมาตรขวด (ml):','1000'));if(isNaN(vol))vol=1000;
     stock.push({name:name,g:g,n:n,vol:vol});
-    saveStock();renderStock();fillTargetDropdown();
+    saveStock();renderStock();fillDropdowns();
   }
 
-  function findSolutions(){
-    var err=$('errBox');
-    var res=$('resultBox');
-    err.style.display='none';
-    res.style.display='none';
-    res.innerHTML='';
+  function calc(){
+    var err=$('errBox'), res=$('resultBox');
+    err.style.display='none';res.style.display='none';res.innerHTML='';
 
+    var A=stock[parseInt($('baseSol').value,10)];  // ฐาน
+    var B=stock[parseInt($('addSol').value,10)];   // ตัวเพิ่ม
     var tg=parseFloat($('tGlu').value);
-    var tn=parseFloat($('tNacl').value);
     var tv=parseFloat($('tVol').value);
 
-    if(isNaN(tg)||isNaN(tn)||isNaN(tv)){
-      err.textContent='⚠️ กรุณากรอก Glucose, NaCl และปริมาตรให้ครบ';
+    if(!A||!B){err.textContent='⚠️ เลือกน้ำเกลือฐานและตัวเพิ่มให้ครบ';err.style.display='block';return;}
+    if(isNaN(tg)||isNaN(tv)){err.textContent='⚠️ กรอก Glucose เป้าหมายและปริมาตร';err.style.display='block';return;}
+    if(tv<=0){err.textContent='⚠️ ปริมาตรต้องมากกว่า 0';err.style.display='block';return;}
+    if(A.g===B.g){err.textContent='⚠️ Glucose ของฐานและตัวเพิ่มเท่ากัน ผสมแล้วเพิ่มความเข้มข้นไม่ได้';err.style.display='block';return;}
+
+    // Alligation เฉพาะ glucose
+    // ฐาน A (glu ต่ำ) + ตัวเพิ่ม B (glu สูง) → เป้า tg
+    // ต้อง tg อยู่ระหว่าง A.g กับ B.g
+    var lo=Math.min(A.g,B.g), hi=Math.max(A.g,B.g);
+    if(tg<lo||tg>hi){
+      err.innerHTML='⚠️ Glucose เป้าหมาย ('+tg+'%) ต้องอยู่ระหว่าง '+lo+'% ถึง '+hi+'%<br>เลือกตัวเพิ่มที่เข้มข้นพอ';
       err.style.display='block';return;
     }
-    if(tv<=0){
-      err.textContent='⚠️ ปริมาตรต้องมากกว่า 0';
-      err.style.display='block';return;
+
+    // ส่วนของ B (ตัวเพิ่ม) = tg - A.g ; ส่วนของ A (ฐาน) = B.g - tg
+    var partB=tg-A.g;
+    var partA=B.g-tg;
+    var total=partA+partB; // = B.g - A.g
+    var volB=tv*partB/total; // ตัวเพิ่ม
+    var volA=tv*partA/total; // ฐาน
+
+    // NaCl ที่ได้จริง
+    var naclResult=(A.n*volA+B.n*volB)/tv;
+    var gluResult=(A.g*volA+B.g*volB)/tv;
+
+    var html='';
+
+    // เตือน peripheral line
+    if(tg>12.5){
+      html+='<div class="alertbox"><b>⚠️ ระวัง: Glucose '+tg+'% เกิน 12.5%</b><br>ความเข้มข้นนี้สูงเกินสำหรับ peripheral vein ควรพิจารณาให้ทาง central line</div>';
     }
 
-    var EPS=0.005;
-    var solutions=[];
+    html+='<div class="sol-card">';
+    html+='<div style="font-size:.8rem;opacity:.9;text-align:center;margin-bottom:12px">ผสมให้ได้ Glucose '+tg+'% ปริมาตร '+round2(tv)+' ml</div>';
+    html+='<div class="sol-mix"><div class="sm-name">'+A.name+'<div class="sm-sub">น้ำเกลือฐาน • G'+A.g+'% N'+A.n+'%</div></div><div class="sm-vol">'+round2(volA)+'<small> ml</small></div></div>';
+    html+='<div class="sol-mix"><div class="sm-name">'+B.name+'<div class="sm-sub">ตัวเพิ่ม • G'+B.g+'% N'+B.n+'%</div></div><div class="sm-vol">'+round2(volB)+'<small> ml</small></div></div>';
+    html+='<div class="sol-check">✓ Glucose ที่ได้ = <b>'+round2(gluResult)+'%</b><br>• NaCl ที่ได้จริง = <b>'+round2(naclResult)+'%</b> <span style="opacity:.8">(ฐาน '+A.n+'% เจือจางลงเล็กน้อย)</span><br>• รวมปริมาตร = '+round2(volA+volB)+' ml</div>';
+    html+='</div>';
 
-    for(var i=0;i<stock.length;i++){
-      for(var j=i+1;j<stock.length;j++){
-        var A=stock[i], B=stock[j];
-        var x_glu=null, x_nacl=null;
-        if(Math.abs(A.g-B.g)>1e-9)x_glu=(tg-B.g)*tv/(A.g-B.g);
-        if(Math.abs(A.n-B.n)>1e-9)x_nacl=(tn-B.n)*tv/(A.n-B.n);
+    // วิธีคำนวณ
+    html+='<div class="infobox"><b>📐 วิธีคำนวณ (Alligation — glucose)</b><br>'+
+      'ส่วนตัวเพิ่ม = เป้า − ฐาน = '+tg+' − '+A.g+' = '+round2(partB)+'<br>'+
+      'ส่วนฐาน = ตัวเพิ่ม − เป้า = '+B.g+' − '+tg+' = '+round2(partA)+'<br>'+
+      'รวม = '+round2(total)+'<br><br>'+
+      B.name+' = '+round2(tv)+' × '+round2(partB)+'/'+round2(total)+' = <b>'+round2(volB)+' ml</b><br>'+
+      A.name+' = '+round2(tv)+' × '+round2(partA)+'/'+round2(total)+' = <b>'+round2(volA)+' ml</b></div>';
 
-        var x=null;
-        if(x_glu!==null && x_nacl!==null){
-          if(Math.abs(x_glu-x_nacl)<=EPS*tv)x=(x_glu+x_nacl)/2;
-        }else if(x_glu!==null){
-          if(Math.abs(A.n-tn)<=EPS)x=x_glu;
-        }else if(x_nacl!==null){
-          if(Math.abs(A.g-tg)<=EPS)x=x_nacl;
-        }else{
-          if(Math.abs(A.g-tg)<=EPS && Math.abs(A.n-tn)<=EPS)x=tv/2;
-        }
-
-        if(x===null)continue;
-        var y=tv-x;
-        if(x< -EPS || y< -EPS)continue;
-        if(x<0)x=0; if(y<0)y=0;
-
-        var gluCheck=(A.g*x+B.g*y)/tv;
-        var naclCheck=(A.n*x+B.n*y)/tv;
-        if(Math.abs(gluCheck-tg)>EPS)continue;
-        if(Math.abs(naclCheck-tn)>EPS)continue;
-
-        var conc50=0;
-        if(A.g>=50)conc50+=x;
-        if(B.g>=50)conc50+=y;
-
-        solutions.push({
-          a:A, b:B, va:round2(x), vb:round2(y),
-          gluCheck:round2(gluCheck), naclCheck:round2(naclCheck),
-          conc50:conc50
-        });
-      }
-    }
-
-    if(solutions.length===0){
-      res.innerHTML='<div class="noresult"><b>⚠️ ไม่พบคู่ที่ผสมได้เป๊ะ 100%</b><br>จากคลังที่มี ไม่มีน้ำเกลือ 2 ตัวใดผสมแล้วได้ทั้ง Glucose '+tg+'% และ NaCl '+tn+'% พร้อมกัน<br><br>อาจต้องใช้วิธีอื่น หรือปรึกษาเภสัชกรครับ</div>';
-      res.style.display='block';return;
-    }
-
-    solutions.sort(function(p,q){return p.conc50-q.conc50;});
-
-    var html='<div style="font-size:.82rem;color:#666;margin-bottom:10px">พบ '+solutions.length+' สูตรที่ผสมได้เป๊ะ (เรียงตามใช้ glucose เข้มข้นน้อยสุด)</div>';
-    for(var k=0;k<solutions.length;k++){
-      var s=solutions[k];
-      var best=(k===0);
-      html+='<div class="sol-card'+(best?' best':'')+'">';
-      html+='<div class="sol-rank">'+(best?'⭐ แนะนำที่สุด':'ทางเลือก '+(k+1))+'</div>';
-      html+='<div class="sol-mix"><div class="sm-name">'+s.a.name+'<br><span style="font-size:.7rem;opacity:.8">G'+s.a.g+'% N'+s.a.n+'%</span></div><div class="sm-vol">'+s.va+'<small> ml</small></div></div>';
-      html+='<div class="sol-mix"><div class="sm-name">'+s.b.name+'<br><span style="font-size:.7rem;opacity:.8">G'+s.b.g+'% N'+s.b.n+'%</span></div><div class="sm-vol">'+s.vb+'<small> ml</small></div></div>';
-      html+='<div class="sol-check">✓ ได้ Glucose <b>'+s.gluCheck+'%</b> • NaCl <b>'+s.naclCheck+'%</b><br>รวมปริมาตร '+round2(s.va+s.vb)+' ml</div>';
-      html+='</div>';
-    }
     res.innerHTML=html;
     res.style.display='block';
   }
 
-  // ═══ ผูก event หลัง DOM พร้อม ═══
   function init(){
     $('tabCalc').addEventListener('click',function(){showTab('calc');});
     $('tabStock').addEventListener('click',function(){showTab('stock');});
-    $('targetPick').addEventListener('change',pickTarget);
-    $('btnCalc').addEventListener('click',findSolutions);
+    $('btnCalc').addEventListener('click',calc);
     $('btnAddStock').addEventListener('click',addStock);
-    fillTargetDropdown();
+    fillDropdowns();
   }
 
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',init);
-  }else{
-    init();
-  }
+  }else{init();}
 })();
 </script>
 </body>
