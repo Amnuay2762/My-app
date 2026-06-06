@@ -3,63 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบวิเคราะห์ตารางเวรดึกอัตโนมัติ V2</title>
-    <!-- โหลดไลบรารี SheetJS สำหรับอ่านไฟล์ Excel -->
+    <title>Pharmacy Night Shift PRO v3</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f4f8; color: #333; padding: 20px; line-height: 1.6; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h1 { color: #1e3a8a; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        body { background-color: #f8fafc; color: #1e293b; padding: 20px; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { color: #1e40af; text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
         
-        .upload-box {
-            border: 2px dashed #3b82f6; background-color: #eff6ff; padding: 40px; text-align: center;
-            border-radius: 12px; cursor: pointer; transition: 0.3s; margin: 20px 0;
-        }
+        /* Upload Area */
+        .upload-box { border: 2px dashed #3b82f6; background-color: #eff6ff; padding: 30px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
         .upload-box:hover { background-color: #dbeafe; }
-        .upload-icon { font-size: 40px; margin-bottom: 10px; }
+        .upload-icon { font-size: 35px; margin-bottom: 10px; }
         
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        /* Controls */
+        #controls { text-align: center; padding: 15px; background: #f1f5f9; border-radius: 10px; margin-bottom: 20px; display: none; }
+        select { padding: 10px 15px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; margin-left: 10px; cursor: pointer; font-weight: bold; color: #1e40af; }
         
-        .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; }
-        .card h2 { color: #2563eb; font-size: 18px; margin-top: 0; }
+        /* Grid Layout */
+        .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        @media (max-width: 768px) { .top-grid { grid-template-columns: 1fr; } }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #f8fafc; font-size: 14px; }
+        /* Cards */
+        .card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .card h2 { color: #2563eb; font-size: 18px; margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
         
-        .badge { background: #3b82f6; color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 14px; }
-        #status { font-weight: bold; margin-top: 15px; color: #16a34a; }
+        /* Tables */
+        .table-container { max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { background-color: #f8fafc; font-size: 14px; position: sticky; top: 0; }
+        
+        /* Badges & Tags */
+        .badge { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        .tag { display: inline-block; background: #f1f5f9; color: #475569; padding: 3px 8px; border-radius: 6px; font-size: 13px; margin: 2px; border: 1px solid #e2e8f0; }
+        #status { font-weight: bold; margin-top: 10px; color: #16a34a; }
+
+        /* Never Paired Section */
+        .person-group { margin-bottom: 15px; }
+        .person-name { font-weight: bold; color: #b91c1c; margin-bottom: 5px; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🏥 ระบบวิเคราะห์-จับคู่เวรดึกอัตโนมัติ</h1>
+    <h1>🏥 ระบบวิเคราะห์ตารางเวรดึก PRO (รายเดือน)</h1>
     
     <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         <div class="upload-icon">📁</div>
         <h3>คลิกที่นี่เพื่ออัปโหลดไฟล์ Excel (ตารางเวร)</h3>
-        <p style="color: #64748b;">รองรับไฟล์ .xlsx ทุกรูปแบบ ระบบจะสแกนหา "ดึก I" อัตโนมัติ</p>
+        <p style="color: #64748b; margin-top: 5px;">ระบบจะดึงข้อมูลทั้งหมด และแยกให้ทีละเดือนอัตโนมัติ</p>
         <input type="file" id="fileInput" accept=".xlsx, .xls" style="display: none;">
-        <div id="status">รอการอัปโหลดไฟล์...</div>
+        <div id="status"></div>
     </div>
 
-    <div class="grid">
+    <!-- ส่วนเลือกเดือน (จะซ่อนไว้จนกว่าจะอัปโหลด) -->
+    <div id="controls">
+        <span style="font-size: 18px; font-weight: bold;">📅 เลือกข้อมูลที่ต้องการดู:</span>
+        <select id="monthSelect" onchange="renderSelectedMonth()"></select>
+    </div>
+
+    <div class="top-grid">
+        <!-- 1. คู่ที่ซ้ำบ่อย -->
         <div class="card">
-            <h2>🏆 คู่ที่อยู่เวรดึกด้วยกันบ่อยที่สุด</h2>
-            <div id="pairResult" style="overflow-x:auto;">(ข้อมูลจะแสดงที่นี่)</div>
+            <h2>🏆 คู่เวรดึก <span id="pairTotal" style="font-size: 14px; color:#64748b;"></span></h2>
+            <div class="table-container" id="pairResult">อัปโหลดไฟล์เพื่อประมวลผล...</div>
         </div>
 
+        <!-- 2. สรุปรายบุคคล -->
         <div class="card">
-            <h2>👤 จำนวนเวรดึกรวมรายบุคคล</h2>
-            <div id="staffResult" style="overflow-x:auto; height: 350px;">(ข้อมูลจะแสดงที่นี่)</div>
+            <h2>👤 จำนวนเวรดึกรายบุคคล <span id="staffTotal" style="font-size: 14px; color:#64748b;"></span></h2>
+            <div class="table-container" id="staffResult">อัปโหลดไฟล์เพื่อประมวลผล...</div>
         </div>
+    </div>
+
+    <!-- 3. คนที่ไม่เคยคู่กัน -->
+    <div class="card">
+        <h2>🙈 คนที่ไม่เคยคู่กันเลย (Blind Spots) <span style="font-size: 13px; font-weight: normal; color: #ef4444;">*เฉพาะคนที่มีเวรดึกในเดือนที่เลือก</span></h2>
+        <div class="table-container" id="neverPairedResult" style="max-height: 500px;">อัปโหลดไฟล์เพื่อประมวลผล...</div>
     </div>
 </div>
 
 <script>
+// ตัวแปรเก็บข้อมูลทั้งหมด แยกตามเดือน
+let storeData = {}; 
+
 document.getElementById('fileInput').addEventListener('change', function(e) {
     let statusText = document.getElementById('status');
     const file = e.target.files[0];
@@ -75,103 +104,173 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
             const data = new Uint8Array(event.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
 
-            let globalPairs = {};
-            let globalStaff = {};
+            storeData = { "รวมทุกเดือน": { pairs: {}, staff: {} } };
 
-            // วนลูปอ่านทุกๆ เดือน (Sheet) ในไฟล์ Excel
             workbook.SheetNames.forEach(sheetName => {
+                storeData[sheetName] = { pairs: {}, staff: {} }; // เตรียม Storage ของเดือนนั้น
                 const sheet = workbook.Sheets[sheetName];
-                // แปลงข้อมูลเป็นอาเรย์ 2 มิติ (Defval ป้องกันช่องว่างเป็น undefined)
                 const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
-                // สร้างหน่วยความจำเก็บว่า แต่ละคอลัมน์ (วัน) มีชื่อใครบ้าง
                 let dailyNightShift = {};
                 for(let i = 1; i <= 40; i++) { dailyNightShift[i] = new Set(); } 
 
-                let currentName = ""; // ตัวแปรจำชื่อพนักงานปัจจุบัน
+                let currentName = ""; 
 
                 rows.forEach(row => {
                     let colA = String(row[0]).trim();
-
-                    // เช็คว่า คอลัมน์แรก เป็น "ชื่อพนักงาน" หรือไม่ (มีตัวอักษร, ไม่ใช่ NaN, ไม่ใช่หัวตาราง)
+                    // กรองช่องชื่อ
                     if (colA && colA !== "NaN" && /[ก-๙a-zA-Z]/.test(colA) && !colA.includes("รวม") && !colA.includes("หยุด") && !colA.includes("พนักงาน")) {
-                        currentName = colA; // จำชื่อพนักงานคนนี้ไว้
+                        currentName = colA; 
                     }
 
-                    // ถ้ายังไม่มีชื่อคนให้ข้ามไป (พวกหัวกระดาษ)
                     if (!currentName) return;
 
-                    // วนเช็คทุกคอลัมน์ในบรรทัดเดียวกัน (เผื่อเจอคำว่า "ดึก")
+                    // สแกนหาคำว่า "ดึก"
                     for (let c = 1; c <= 35; c++) {
                         let cellData = String(row[c] || "").trim();
-                        // ถ้าเจอคำว่า ดึก (เช่น "ดึก I") ให้เอาชื่อไปผูกกับคอลัมน์นั้น
                         if (cellData.includes("ดึก")) {
                             dailyNightShift[c].add(currentName);
                         }
                     }
                 });
 
-                // --- นำข้อมูลแต่ละวันมาประมวลผลเป็น "คู่" ---
+                // ประมวลผลจำนวนและการจับคู่
                 for (let c = 1; c <= 40; c++) {
                     let people = Array.from(dailyNightShift[c]);
                     
-                    // นับยอดรวมเวรดึกรายบุคคล
                     people.forEach(person => {
-                        globalStaff[person] = (globalStaff[person] || 0) + 1;
+                        // บวกยอดให้เดือนนั้นๆ
+                        storeData[sheetName].staff[person] = (storeData[sheetName].staff[person] || 0) + 1;
+                        // บวกยอดให้ภาพรวม
+                        storeData["รวมทุกเดือน"].staff[person] = (storeData["รวมทุกเดือน"].staff[person] || 0) + 1;
                     });
 
-                    // นับยอดการจับคู่กัน
                     if (people.length >= 2) {
-                        people.sort(); // เรียงชื่อ ก-ฮ ป้องกัน A+B กับ B+A สลับกัน
+                        people.sort(); // เรียงอักษร
                         for (let i = 0; i < people.length; i++) {
                             for (let j = i + 1; j < people.length; j++) {
-                                let pairName = people[i] + " คู่กับ " + people[j];
-                                globalPairs[pairName] = (globalPairs[pairName] || 0) + 1;
+                                let pairName = people[i] + " + " + people[j];
+                                
+                                storeData[sheetName].pairs[pairName] = (storeData[sheetName].pairs[pairName] || 0) + 1;
+                                storeData["รวมทุกเดือน"].pairs[pairName] = (storeData["รวมทุกเดือน"].pairs[pairName] || 0) + 1;
                             }
                         }
                     }
                 }
             });
 
-            // แสดงผลหน้าจอ
-            displayResults(globalPairs, globalStaff);
+            // สร้าง Dropdown Month Option
+            let selectHtml = `<option value="รวมทุกเดือน">📊 รวมทุกเดือน (All Months)</option>`;
+            workbook.SheetNames.forEach(sheet => {
+                // เช็คว่า sheet นั้นมีคนขึ้นดึกไหม ถ้าว่างเปล่าไม่ต้องเอามาโชว์
+                if(Object.keys(storeData[sheet].staff).length > 0) {
+                     selectHtml += `<option value="${sheet}">📅 เดือน ${sheet}</option>`;
+                }
+            });
+            document.getElementById('monthSelect').innerHTML = selectHtml;
+            document.getElementById('controls').style.display = "block";
+
+            // เรนเดอร์ค่าเริ่มต้น (รวมทุกเดือน)
+            renderSelectedMonth();
+            
             statusText.style.color = "#16a34a";
-            statusText.innerText = "✅ วิเคราะห์ข้อมูลสำเร็จแล้ว!";
+            statusText.innerText = `✅ อ่านไฟล์สำเร็จ! พบข้อมูล ${Object.keys(storeData["รวมทุกเดือน"].staff).length} คนที่อยู่เวรดึก`;
             
         } catch (error) {
             statusText.style.color = "red";
-            statusText.innerText = "❌ เกิดข้อผิดพลาดในการอ่านไฟล์: " + error.message;
-            console.error(error);
+            statusText.innerText = "❌ เกิดข้อผิดพลาด: " + error.message;
         }
     };
 
     reader.readAsArrayBuffer(file);
 });
 
-function displayResults(pairs, staff) {
-    // เรนเดอร์ตารางจัดอันดับคู่
-    let pairHtml = "<table><tr><th>ชื่อคู่เวรดึก</th><th style='text-align:right;'>ครั้ง</th></tr>";
-    
-    // แปลง Object เป็น Array เพื่อเรียงลำดับจากมากไปน้อย
-    let sortedPairs = Object.keys(pairs).sort((a, b) => pairs[b] - pairs[a]);
-    
-    if (sortedPairs.length === 0) {
-        pairHtml += "<tr><td colspan='2' style='color:#ef4444;'>ไม่พบข้อมูลเวรดึก (โปรดตรวจสอบไฟล์)</td></tr>";
-    } else {
-        sortedPairs.forEach(key => {
-            pairHtml += `<tr><td>${key}</td><td style='text-align:right;'><span class="badge">${pairs[key]}</span></td></tr>`;
-        });
-    }
-    document.getElementById('pairResult').innerHTML = pairHtml + "</table>";
+// ฟังก์ชันถูกเรียกเมื่อมีการเปลี่ยน Dropdown
+function renderSelectedMonth() {
+    let mode = document.getElementById('monthSelect').value;
+    let data = storeData[mode];
 
-    // เรนเดอร์ยอดรายบุคคล
-    let staffHtml = "<table><tr><th>ชื่อเจ้าหน้าที่</th><th style='text-align:right;'>รวมเวรดึก</th></tr>";
-    let sortedStaff = Object.keys(staff).sort((a, b) => staff[b] - staff[a]);
+    renderPairs(data.pairs);
+    renderStaff(data.staff);
+    renderNeverPaired(data.staff, data.pairs);
+}
+
+function renderPairs(pairs) {
+    let html = "<table><tr><th>คู่เวรดึก (Pair)</th><th style='text-align:right;'>เจอหน้ากัน (ครั้ง)</th></tr>";
+    let sorted = Object.keys(pairs).sort((a, b) => pairs[b] - pairs[a]);
     
-    sortedStaff.forEach(key => {
-        staffHtml += `<tr><td>${key}</td><td style='text-align:right;'>${staff[key]} กะ</td></tr>`;
+    document.getElementById('pairTotal').innerText = `(ทั้งหมด ${sorted.length} คู่)`;
+
+    if (sorted.length === 0) {
+        html += "<tr><td colspan='2' style='color:#ef4444;text-align:center;'>ไม่มีคนอยู่คู่กันในเดือนนี้</td></tr>";
+    } else {
+        sorted.forEach(k => { html += `<tr><td>${k}</td><td style='text-align:right;'><span class="badge">${pairs[k]}</span></td></tr>`; });
+    }
+    document.getElementById('pairResult').innerHTML = html + "</table>";
+}
+
+function renderStaff(staff) {
+    let html = "<table><tr><th>ชื่อพนักงาน</th><th style='text-align:right;'>รอบดึก (ครั้ง)</th></tr>";
+    let sorted = Object.keys(staff).sort((a, b) => staff[b] - staff[a]);
+    
+    document.getElementById('staffTotal').innerText = `(มีเวรดึก ${sorted.length} คน)`;
+
+    if (sorted.length === 0) {
+        html += "<tr><td colspan='2' style='color:#ef4444;text-align:center;'>ไม่มีเวรดึกในเดือนนี้</td></tr>";
+    } else {
+        sorted.forEach(k => { html += `<tr><td><b>${k}</b></td><td style='text-align:right;'>${staff[k]}</td></tr>`; });
+    }
+    document.getElementById('staffResult').innerHTML = html + "</table>";
+}
+
+function renderNeverPaired(staffDict, pairDict) {
+    // 1. ดึงชื่อเฉพาะคนที่ขึ้นดึกในเดือนนี้
+    let activeStaff = Object.keys(staffDict).sort();
+    
+    if (activeStaff.length < 2) {
+        document.getElementById('neverPairedResult').innerHTML = "<p style='text-align:center;color:#64748b;padding:20px;'>ต้องมีคนขึ้นเวรดึกอย่างน้อย 2 คน ถึงจะวิเคราะห์ได้ครับ</p>";
+        return;
+    }
+
+    // 2. สร้างโครงเก็บข้อมูล { "สมหมาย": ["สมศรี", "สมร"...] }
+    let neverPairedMap = {};
+    activeStaff.forEach(p => neverPairedMap[p] = []);
+
+    // 3. เอาทุกคนมาเทียบกันแบบพบกันหมด
+    for (let i = 0; i < activeStaff.length; i++) {
+        for (let j = i + 1; j < activeStaff.length; j++) {
+            let p1 = activeStaff[i];
+            let p2 = activeStaff[j];
+            let pairKey = p1 + " + " + p2; // ต้องเรียงเหมือนตอนวิเคราะห์เป๊ะๆ (sort มาแล้วด้านบน)
+
+            // ถ้าหาคู่นี้ไม่เจอในประวัติ แสดงว่าไม่เคยเจอกันเลย
+            if (!pairDict[pairKey]) {
+                neverPairedMap[p1].push(p2);
+                neverPairedMap[p2].push(p1);
+            }
+        }
+    }
+
+    // 4. แสดงผลลงหน้าเว็บ
+    let html = "";
+    activeStaff.forEach(person => {
+        let strangers = neverPairedMap[person];
+        if (strangers.length > 0) {
+            html += `<div class="person-group">
+                        <div class="person-name">❌ ${person} <span style="color:#64748b; font-weight:normal; font-size:13px;">(ยังไม่เคยคู่กับ ${strangers.length} คน)</span></div>`;
+            strangers.forEach(stranger => {
+                html += `<span class="tag">${stranger}</span>`;
+            });
+            html += `</div>`;
+        } else {
+            html += `<div class="person-group">
+                        <div class="person-name" style="color:#16a34a;">✅ ${person}</div>
+                        <span class="tag" style="background:#dcfce3;border-color:#22c55e;">คู่กับทุกคนครบแล้ว!</span>
+                     </div>`;
+        }
     });
-    document.getElementById('staffResult').innerHTML = staffHtml + "</table>";
+
+    document.getElementById('neverPairedResult').innerHTML = html;
 }
 </script>
 
