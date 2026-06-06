@@ -12,7 +12,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:'Prompt',sans-serif;
-  color:#fff;min-height:100vh;padding-bottom:50px;
+  color:#fff;min-height:100vh;padding-bottom:100px; /* เพิ่มระยะหลบเมนูด้านล่าง */
   background:linear-gradient(135deg,#0f172a,#1e3a8a,#3b0764,#312e81);
   background-size:400% 400%; animation:bgmove 20s ease infinite;
 }
@@ -36,20 +36,20 @@ body::after{
 
 /* เมนูด้านล่างสุด (Sticky Bottom Nav) */
 .nav{
-  position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+  position:fixed;bottom:15px;left:50%;transform:translateX(-50%);
   width:calc(100% - 32px);max-width:560px;
   background:rgba(255,255,255,.1);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
   border:1px solid rgba(255,255,255,.2);border-radius:24px;
-  display:flex;justify-content:space-around;padding:8px 12px;z-index:100;
+  display:flex;justify-content:space-around;padding:8px 6px;z-index:100;
   box-shadow:0 10px 40px rgba(0,0,0,.3);
 }
 .nav button{
   background:transparent;border:none;color:rgba(255,255,255,.6);
-  font-family:inherit;font-size:.75rem;font-weight:600;
+  font-family:inherit;font-size:.70rem;font-weight:600;
   display:flex;flex-direction:column;align-items:center;gap:4px;
-  padding:8px 12px;border-radius:16px;transition:all .2s;
+  padding:8px 8px;border-radius:18px;transition:all .2s;flex:1;
 }
-.nav button .ic{font-size:1.3rem}
+.nav button .ic{font-size:1.4rem}
 .nav button.on{color:#fff;background:rgba(255,255,255,.15);box-shadow:inset 0 1px 2px rgba(255,255,255,.3)}
 
 /* การ์ดกระจก (Liquid Glass) */
@@ -87,6 +87,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa}
   border:1px solid rgba(255,255,255,.3);border-radius:14px;
   font-family:inherit;font-size:1.05rem;font-weight:600;
   box-shadow:0 4px 15px rgba(37,99,235,.4),inset 0 1px 3px rgba(255,255,255,.4);
+  cursor:pointer;
 }
 .btn-primary:active{transform:scale(.98)}
 
@@ -115,7 +116,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa}
 .tx-type.buy{color:#60a5fa}
 .tx-type.sell{color:#f472b6}
 
-.hide{display:none}
+.hide{display:none !important;}
 </style>
 </head>
 <body>
@@ -170,7 +171,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa}
   <!-- TAB: บันทึกซื้อขาย -->
   <div id="tabTrade" class="hide">
     <div class="box">
-      <div style="font-weight:700;margin-bottom:15px">🛒 บันทึกรายการใหม่</div>
+      <div style="font-weight:700;margin-bottom:15px">🛒 บันทึกรายการตั้งต้น / ซื้อ-ขาย</div>
       
       <div class="row2">
         <div>
@@ -203,7 +204,7 @@ input:focus,select:focus{outline:none;border-color:#60a5fa}
       <label>ค่าธรรมเนียม / คอมมิชชั่น</label>
       <input type="number" id="tComm" inputmode="decimal" placeholder="0.00">
 
-      <button class="btn-primary" onclick="addTrade()">บันทึกรายการ</button>
+      <button class="btn-primary" id="btnAddTrade">บันทึกรายการ</button>
     </div>
 
     <div class="box">
@@ -220,39 +221,39 @@ input:focus,select:focus{outline:none;border-color:#60a5fa}
       
       <div id="priceInputs"></div>
       
-      <button class="btn-primary" onclick="savePrices()">บันทึกราคาล่าสุด</button>
+      <button class="btn-primary" id="btnSavePrices">บันทึกราคาล่าสุด</button>
     </div>
   </div>
 
   <!-- TAB: ตั้งค่า (Export/Import/S&P) -->
   <div id="tabSettings" class="hide">
     <div class="box">
-      <div style="font-weight:700;margin-bottom:10px">⚙️ ตั้งค่าระบบ</div>
+      <div style="font-weight:700;margin-bottom:10px">⚙️ ทำการตั้งค่า</div>
       
       <label>อัตราผลตอบแทน S&P 500 ปีนี้ (%)</label>
       <input type="number" id="sSP500" inputmode="decimal" placeholder="เช่น 15.5">
-      <button class="btn-primary" style="padding:10px;margin-top:10px" onclick="saveSettings()">บันทึกค่า</button>
+      <button class="btn-primary" style="padding:10px;margin-top:10px" id="btnSaveSet">บันทึกค่า</button>
     </div>
 
     <div class="box">
       <div style="font-weight:700;margin-bottom:10px">💾 จัดการข้อมูลสำรอง (JSON)</div>
-      <button class="btn-primary" style="padding:12px;background:rgba(255,255,255,.1);margin-top:0" onclick="exportData()">⬇️ ดาวน์โหลด (Export)</button>
+      <button class="btn-primary" style="padding:12px;background:rgba(255,255,255,.1);margin-top:0" id="btnExport">⬇️ ดาวน์โหลด (Export)</button>
       
       <label style="margin-top:20px">นำเข้าข้อมูล (Import)</label>
       <input type="file" id="importFile" accept=".json" style="padding:10px;font-size:.8rem">
-      <button class="btn-primary" style="padding:12px;background:rgba(244,114,182,.3);border-color:rgba(244,114,182,.5)" onclick="importData()">⬆️ โหลดนำเข้าทับข้อมูลเดิม</button>
+      <button class="btn-primary" style="padding:12px;background:rgba(244,114,182,.3);border-color:rgba(244,114,182,.5)" id="btnImport">⬆️ โหลดเข้าทับข้อมูลเดิม</button>
     </div>
     
-    <button class="btn-primary" style="background:#ef4444;border-color:#f87171" onclick="clearAll()">ลบข้อมูลทั้งหมดในระบบ</button>
+    <button class="btn-primary" style="background:#ef4444;border-color:#f87171" id="btnClearAll">ลบข้อมูลทั้งหมดในระบบ</button>
   </div>
 </div>
 
 <!-- Bottom Navigation -->
 <div class="nav">
-  <button id="nDash" class="on" onclick="nav('Dashboard')"><span class="ic">📊</span>พอร์ต</button>
-  <button id="nTrade" onclick="nav('Trade')"><span class="ic">🛒</span>วิเคราะห์</button>
-  <button id="nPrices" onclick="nav('Prices')"><span class="ic">📈</span>อัปเดต</button>
-  <button id="nSet" onclick="nav('Settings')"><span class="ic">⚙️</span>ตั่งค่า</button>
+  <button id="nDash" class="on" data-target="Dashboard"><span class="ic">📊</span>พอร์ต</button>
+  <button id="nTrade" data-target="Trade"><span class="ic">🛒</span>วิเคราะห์</button>
+  <button id="nPrices" data-target="Prices"><span class="ic">📈</span>อัปเดต</button>
+  <button id="nSet" data-target="Settings"><span class="ic">⚙️</span>ตั้งค่า</button>
 </div>
 
 <script>
@@ -267,24 +268,39 @@ let myChart = null;
 document.getElementById('tDate').valueAsDate = new Date();
 document.getElementById('sSP500').value = sp500_ret;
 
-// --- จัดการ Tab Navigation ---
-function nav(tab) {
-  ['Dashboard','Trade','Prices','Settings'].forEach(t => {
-    document.getElementById('tab'+t).classList.add('hide');
-    document.getElementById('n'+t.substring(0,4)).classList.remove('on');
-    // พิเศษตัวเลือก
-    let btnID = 'n' + (t==='Dashboard'?'Dash':(t==='Settings'?'Set':t));
-    document.getElementById(btnID).classList.remove('on');
+// --- จัดการ Tab Navigation อย่างเสถียร ---
+function nav(tabName) {
+  // 1. ซ่อนทุกแท็บ
+  ['Dashboard', 'Trade', 'Prices', 'Settings'].forEach(t => {
+    document.getElementById('tab' + t).classList.add('hide');
   });
-  
-  document.getElementById('tab'+tab).classList.remove('hide');
-  let activeBtn = 'n' + (tab==='Dashboard'?'Dash':(tab==='Settings'?'Set':tab));
-  document.getElementById(activeBtn).classList.add('on');
+  // 2. เคลียร์ปุ่ม On
+  ['nDash', 'nTrade', 'nPrices', 'nSet'].forEach(btn => {
+    document.getElementById(btn).classList.remove('on');
+  });
 
-  if(tab === 'Dashboard') renderDashboard();
-  if(tab === 'Trade') renderHistory();
-  if(tab === 'Prices') renderPricesTab();
+  // 3. แสดงแแท็บที่ถูกเรียก
+  document.getElementById('tab' + tabName).classList.remove('hide');
+  
+  // 4. แสดงปุ่มที่ถูกเปิด
+  let btnID = 'nDash';
+  if(tabName === 'Trade') btnID = 'nTrade';
+  if(tabName === 'Prices') btnID = 'nPrices';
+  if(tabName === 'Settings') btnID = 'nSet';
+  document.getElementById(btnID).classList.add('on');
+
+  // 5. โหลดข้อมูลในหน้านั้นๆ
+  if(tabName === 'Dashboard') renderDashboard();
+  if(tabName === 'Trade') renderHistory();
+  if(tabName === 'Prices') renderPricesTab();
 }
+
+// ผูก Event ฝั่ง Navigation
+document.getElementById('nDash').addEventListener('click', () => nav('Dashboard'));
+document.getElementById('nTrade').addEventListener('click', () => nav('Trade'));
+document.getElementById('nPrices').addEventListener('click', () => nav('Prices'));
+document.getElementById('nSet').addEventListener('click', () => nav('Settings'));
+
 
 // --- ฟอร์แมตตัวเลข ---
 function fmt(num) {
@@ -308,15 +324,14 @@ function calcHoldings() {
 
     if(tx.type === 'buy') {
       h.shares += sh;
-      h.total_cost += (p * sh) + comm; // ทุน=ราคา+คอม
-      // ใส่ราคาเริ่มต้นในคลังราคาอัตโนมัติถ้าไม่มี
-      if(!prices[sym]) prices[sym] = p;
+      h.total_cost += (p * sh) + comm;
+      if(!prices[sym]) prices[sym] = p; // ใส่ราคาทุนตั้งต้นให้เลย
     } else if(tx.type === 'sell') {
       if(h.shares > 0) {
         let avgCost = h.total_cost / h.shares;
         h.shares -= sh;
-        h.total_cost -= (avgCost * sh); // ลดทุนตามสัดส่วน
-        let revenue = (p * sh) - comm; // รายรับ=ราคา-คอม
+        h.total_cost -= (avgCost * sh);
+        let revenue = (p * sh) - comm;
         let profit = revenue - (avgCost * sh);
         h.realized += profit;
         totalRealized += profit;
@@ -340,10 +355,9 @@ function renderDashboard() {
   let chartData = [];
   let chartColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
 
-  // สร้าง UI สำหรับหุ้นที่มีอยู่ (Share > 0)
   Object.keys(holdings).forEach(sym => {
     let h = holdings[sym];
-    if(h.shares <= 0.0001) return; // ไม่นำมาคิดถ้าขายหมดแล้ว
+    if(h.shares <= 0.0001) return; // กรองตัวที่ขายเกลี้ยงแล้วออก
     
     let avgCost = h.total_cost / h.shares;
     let curPrice = prices[sym] || avgCost;
@@ -355,11 +369,9 @@ function renderDashboard() {
     let unrealized = curVal - h.total_cost;
     let p_pct = (unrealized / h.total_cost) * 100;
     
-    // ข้อมูลกราฟ
     chartLabels.push(sym);
     chartData.push(curVal);
 
-    // สร้างกล่อง
     let cssColor = unrealized >= 0 ? 'text-up' : 'text-down';
     let sign = unrealized >= 0 ? '+' : '';
     
@@ -367,7 +379,7 @@ function renderDashboard() {
       <div class="stk-item">
         <div class="stk-left">
           <div class="sym">${sym}</div>
-          <div class="avg">${h.shares} หุ้น | ทุน ${fmt(avgCost)} | ปัจจุบัน ${fmt(curPrice)}</div>
+          <div class="avg">${h.shares} หุ้น | ทุน ${fmt(avgCost)} | รันที่ ${fmt(curPrice)}</div>
         </div>
         <div class="stk-right">
           <div class="val">฿${fmt(curVal)}</div>
@@ -377,9 +389,8 @@ function renderDashboard() {
     `;
   });
 
-  if(hList.innerHTML === '') hList.innerHTML = '<div style="text-align:center;font-size:.85rem;color:#999;padding:10px">ยังไม่มีหุ้นในพอร์ต (ไปที่หน้าวิเคราะห์เพื่อเพิ่มการซื้อ)</div>';
+  if(hList.innerHTML === '') hList.innerHTML = '<div style="text-align:center;font-size:.85rem;color:#999;padding:10px">พอร์ตว่างเปล่า (กดวิเคราะห์เพื่อใส่เงินตั้งต้น)</div>';
 
-  // สรุปยอดรวมแผงหน้า
   let totUnrealized = totVal - totCost;
   let totPct = totCost > 0 ? (totUnrealized / totCost) * 100 : 0;
   
@@ -412,42 +423,40 @@ function renderDashboard() {
     }
   }
 
-  // วาดกราฟ Doughnut (Chart.js)
+  // วาดกราฟ
   if(myChart) myChart.destroy();
-  let ctx = document.getElementById('portChart').getContext('2d');
-  
-  if(chartData.length > 0) {
-    Chart.defaults.color = "rgba(255,255,255,0.7)";
-    myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: chartLabels,
-        datasets: [{
-          data: chartData,
-          backgroundColor: chartColors,
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'right', labels:{ boxWidth:12, font:{family:'Prompt'} } }
+  if(typeof Chart !== 'undefined') {
+    let ctx = document.getElementById('portChart').getContext('2d');
+    if(chartData.length > 0) {
+      Chart.defaults.color = "rgba(255,255,255,0.7)";
+      myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            data: chartData,
+            backgroundColor: chartColors,
+            borderWidth: 0,
+            hoverOffset: 6
+          }]
         },
-        cutout: '65%'
-      }
-    });
-  } else {
-    // กราฟเปล่าถ้าไม่มีหุ้น
-    myChart = new Chart(ctx, {
-      type: 'doughnut', data:{ labels:['ไม่มีหุ้น'], datasets:[{ data:[1], backgroundColor:['#334155']}] },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'} }, cutout:'65%'}
-    });
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels:{ boxWidth:12, font:{family:'Prompt'} } } },
+          cutout: '65%'
+        }
+      });
+    } else {
+      myChart = new Chart(ctx, {
+        type: 'doughnut', data:{ labels:['รอใส่ข้อมูล'], datasets:[{ data:[1], backgroundColor:['#334155']}] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'} }, cutout:'65%'}
+      });
+    }
   }
 }
 
-// --- การซื้อขาย ---
-function addTrade() {
+// --- ฟังก์ชันซื้อขาย ---
+document.getElementById('btnAddTrade').addEventListener('click', function() {
   let type = document.getElementById('tType').value;
   let date = document.getElementById('tDate').value;
   let sym = document.getElementById('tSym').value.trim();
@@ -456,16 +465,14 @@ function addTrade() {
   let comm = parseFloat(document.getElementById('tComm').value) || 0;
 
   if(!sym || isNaN(shares) || isNaN(price) || shares<=0 || price<=0) {
-    alert("กรุณากรอก สัญลักษณ์, จำนวน และราคา ให้ถูกต้อง"); return;
+    alert("กรุณากรอก สัญลักษณ์, จำนวนหุ้น และราคา ให้ถูกต้องครับ!!"); return;
   }
 
-  // เซฟเข้าประวัติ
   txs.push({
     id: Date.now(),
     date: date, type: type, sym: sym, shares: shares, price: price, comm: comm
   });
   
-  // เรียงวันที่เก่านำหน้า
   txs.sort((a,b) => new Date(a.date) - new Date(b.date));
   localStorage.setItem('portTxs', JSON.stringify(txs));
 
@@ -474,15 +481,15 @@ function addTrade() {
   document.getElementById('tPrice').value = '';
   document.getElementById('tComm').value = '';
 
-  alert(`บันทึก ${type==='buy'?'ซื้อ':'ขาย'} ${sym} เรียบร้อย!`);
+  alert(`บันทึกการ ${type==='buy'?'ซื้อ':'ขาย'} ${sym} ลงพอร์ตเรียบร้อย!`);
   calcHoldings();
   renderHistory();
-}
+});
 
 function renderHistory() {
   let box = document.getElementById('txHistory');
   box.innerHTML = '';
-  let recent = [...txs].sort((a,b) => b.id - a.id).slice(0, 5); // เอา 5 อันล่าสุดมาโชว์
+  let recent = [...txs].sort((a,b) => b.id - a.id).slice(0, 5); 
 
   if(recent.length === 0) {
     box.innerHTML = '<div style="font-size:.8rem;color:#999">ยังไม่มีประวัติการทำรายการ</div>';
@@ -490,25 +497,25 @@ function renderHistory() {
   }
 
   recent.forEach(tx => {
-    let tLabel = tx.type === 'buy' ? 'ซื้อ' : 'ขาย';
+    let tLabel = tx.type === 'buy' ? 'เข้าซื้อ' : 'ตั้งขาย';
     let tClass = tx.type === 'buy' ? 'buy' : 'sell';
     box.innerHTML += `
       <div class="tx-item">
         <div><span class="tx-type ${tClass}">${tLabel}</span> <span class="tx-sym">${tx.sym}</span><br><span style="color:#999">${tx.date}</span></div>
-        <div style="text-align:right">${tx.shares} หุ้น @ ฿${fmt(tx.price)}<br><span style="color:#999">คอม ฿${fmt(tx.comm)}</span></div>
+        <div style="text-align:right">${tx.shares} หุ้น @ ${fmt(tx.price)} ฿<br><span style="color:#999">คอมมิทฯ ${fmt(tx.comm)}</span></div>
       </div>
     `;
   });
 }
 
-// --- อัปเดตราคาล่าสุด ---
+// --- การอัปเดตราคา ---
 function renderPricesTab() {
   let keys = Object.keys(holdings).filter(s => holdings[s].shares > 0);
   let pBox = document.getElementById('priceInputs');
   pBox.innerHTML = '';
 
   if(keys.length === 0) {
-    pBox.innerHTML = '<div style="font-size:.85rem;color:#999">ไม่มีหุ้นในพอร์ต ไม่ต้องอัปเดตราคา</div>';
+    pBox.innerHTML = '<div style="font-size:.85rem;color:#999">คุณไม่มีหุ้นที่กำลังถือในตอนนี้ (พอร์ตว่างเปล่า)</div>';
     return;
   }
 
@@ -517,13 +524,13 @@ function renderPricesTab() {
     pBox.innerHTML += `
       <div class="price-row">
         <div class="sym">${sym}</div>
-        <input type="number" id="pr_${sym}" inputmode="decimal" value="${round2(cur)}">
+        <input type="number" id="pr_${sym}" inputmode="decimal" value="${Math.round(cur * 100) / 100}">
       </div>
     `;
   });
 }
 
-function savePrices() {
+document.getElementById('btnSavePrices').addEventListener('click', function() {
   let keys = Object.keys(holdings).filter(s => holdings[s].shares > 0);
   keys.forEach(sym => {
     let inp = document.getElementById('pr_'+sym);
@@ -532,23 +539,19 @@ function savePrices() {
     }
   });
   localStorage.setItem('portPrices', JSON.stringify(prices));
-  alert('บันทึกราคาล่าสุดเรียบร้อย กำไรคำนวณใหม่แล้ว!');
-}
+  alert('บันทึกราคาอัปเดตเรียบร้อย หน้าพอร์ตถูกคำนวณใหม่แล้วครับ!');
+});
 
-// --- ตั้งค่า / Export Import ---
-function saveSettings() {
+// --- ดำเนินการการตั้งค่า / Backup ---
+document.getElementById('btnSaveSet').addEventListener('click', function() {
   let s = parseFloat(document.getElementById('sSP500').value) || 0;
   sp500_ret = s;
   localStorage.setItem('portSP500', sp500_ret);
-  alert('บันทึกค่าผลตอบแทนเปรียบเทียบเรียบร้อย');
-}
+  alert('บันทึกการเปรียบเทียบ S&P สำเร็จ');
+});
 
-function exportData() {
-  let data = {
-    transactions: txs,
-    prices: prices,
-    sp500: sp500_ret
-  };
+document.getElementById('btnExport').addEventListener('click', function() {
+  let data = { transactions: txs, prices: prices, sp500: sp500_ret };
   let blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
   let url = URL.createObjectURL(blob);
   let a = document.createElement("a");
@@ -558,12 +561,12 @@ function exportData() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-}
+});
 
-function importData() {
+document.getElementById('btnImport').addEventListener('click', function() {
   let fileInp = document.getElementById('importFile');
   if(!fileInp.files || fileInp.files.length === 0) {
-    alert("กรุณาเลือกไฟล์ JSON ก่อน"); return;
+    alert("โปรดกดเลือกไฟล์นามสกุล (.json) เพื่อโหลดเข้ามาก่อน"); return;
   }
   let file = fileInp.files[0];
   let reader = new FileReader();
@@ -580,42 +583,34 @@ function importData() {
         localStorage.setItem('portSP500', sp500_ret);
         
         document.getElementById('sSP500').value = sp500_ret;
-        calcHoldings();
-        renderDashboard();
-        alert('กู้คืนข้อมูลสำเร็จ!');
+        calcHoldings(); renderDashboard();
+        alert('อัปโหลดกู้คืนข้อมูลสำเร็จ ระบบกลับมาแล้ว!');
       } else {
-        alert('ไฟล์ไม่ถูกต้อง ไม่พบข้อมูล Pofolio');
+        alert('ไฟล์ไม่ถูกต้อง ไม่พบข้อมูล Pofolio :(');
       }
     } catch(err) {
-      alert('Error: ไม่สามารถอ่านไฟล์ JSON ได้');
+      alert('Error: ไม่สามารถอ่านทะลุไฟล์ JSON ได้');
     }
   }
   reader.readAsText(file);
-}
+});
 
-function clearAll() {
-  if(confirm("คำเตือน: ยืนยันการลบข้อมูลซื้อขายทั้งหมด? (ไม่สามารถกู้คืนได้)")) {
+document.getElementById('btnClearAll').addEventListener('click', function() {
+  if(confirm("!! คำเตือนอันตราย !! : ยืนยันการลบข้อมูลซื้อขายทั้งหมด? (กดตกลงแล้วจะไม่สามารถกู้คืนได้)")) {
     txs = []; prices = {}; sp500_ret = 0;
     localStorage.removeItem('portTxs');
     localStorage.removeItem('portPrices');
     localStorage.removeItem('portSP500');
-    calcHoldings();
-    renderDashboard();
-    renderHistory();
-    alert('ลบข้อมูลเรียบร้อยแล้ว');
+    calcHoldings(); renderDashboard(); renderHistory();
+    alert('ล้างสต็อกพอร์ตของคุณเรียบร้อยแล้ว');
   }
-}
+});
 
-function round2(num) {
-  return Math.round(num * 100) / 100;
-}
-
-// --- เริ่มต้นโหลด ---
+// รันครั้งแรกหลังจอโหลด 
 window.onload = function() {
   calcHoldings();
   renderDashboard();
-}
-
+};
 </script>
 </body>
 </html>
