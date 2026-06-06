@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>พอร์ตการลงทุน</title>
+<meta name="theme-color" content="#1e3a8a">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- โหลด Chart.js สำหรับวาดกราฟ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Prompt',sans-serif;
+  color:#fff;min-height:100vh;padding-bottom:50px;
+  background:linear-gradient(135deg,#0f172a,#1e3a8a,#3b0764,#312e81);
+  background-size:400% 400%; animation:bgmove 20s ease infinite;
+}
+@keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+body::before{
+  content:'';position:fixed;top:-150px;right:-100px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(59,130,246,.25),transparent 65%);
+  border-radius:50%;pointer-events:none;z-index:0;animation:float1 12s ease-in-out infinite;
+}
+body::after{
+  content:'';position:fixed;bottom:-100px;left:-100px;width:350px;height:350px;
+  background:radial-gradient(circle,rgba(168,85,247,.25),transparent 65%);
+  border-radius:50%;pointer-events:none;z-index:0;animation:float2 15s ease-in-out infinite;
+}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,50px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(50px,-40px)}}
+
+.wrap{padding:16px;max-width:600px;margin:0 auto;position:relative;z-index:1}
+.hd{text-align:center;padding:10px 0 20px}
+.hd h1{font-size:1.4rem;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+
+/* เมนูด้านล่างสุด (Sticky Bottom Nav) */
+.nav{
+  position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 32px);max-width:560px;
+  background:rgba(255,255,255,.1);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,.2);border-radius:24px;
+  display:flex;justify-content:space-around;padding:8px 12px;z-index:100;
+  box-shadow:0 10px 40px rgba(0,0,0,.3);
+}
+.nav button{
+  background:transparent;border:none;color:rgba(255,255,255,.6);
+  font-family:inherit;font-size:.75rem;font-weight:600;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:8px 12px;border-radius:16px;transition:all .2s;
+}
+.nav button .ic{font-size:1.3rem}
+.nav button.on{color:#fff;background:rgba(255,255,255,.15);box-shadow:inset 0 1px 2px rgba(255,255,255,.3)}
+
+/* การ์ดกระจก (Liquid Glass) */
+.box{
+  background:rgba(255,255,255,.08);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,.2);border-radius:20px;
+  padding:20px;margin-bottom:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.2),inset 0 1px 1px rgba(255,255,255,.3);
+}
+
+/* สรุปพอร์ต */
+.dash-total{text-align:center;margin-bottom:10px}
+.dash-total .lbl{font-size:.85rem;color:rgba(255,255,255,.7)}
+.dash-total .val{font-size:2.4rem;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.3);margin:5px 0}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.dash-card{background:rgba(0,0,0,.2);border-radius:16px;padding:14px;text-align:center;border:1px solid rgba(255,255,255,.1)}
+.dash-card .ds-lbl{font-size:.75rem;color:rgba(255,255,255,.6)}
+.dash-card .ds-val{font-size:1.1rem;font-weight:700;margin-top:4px}
+.text-up{color:#34d399;text-shadow:0 0 10px rgba(52,211,153,.3)} /* สีเขียวกำไร */
+.text-down{color:#f87171;text-shadow:0 0 10px rgba(248,113,113,.3)} /* สีแดงขาดทุน */
+
+.chart-container{position:relative;height:220px;width:100%;margin-top:10px}
+
+/* ฟอร์มและ Input */
+label{display:block;font-size:.85rem;margin:12px 0 6px;color:rgba(255,255,255,.8);font-weight:500}
+label:first-child{margin-top:0}
+input,select{
+  width:100%;padding:14px;background:rgba(0,0,0,.2);color:#fff;
+  border:1px solid rgba(255,255,255,.2);border-radius:12px;font-family:inherit;font-size:1rem;
+}
+input:focus,select:focus{outline:none;border-color:#60a5fa}
+.btn-primary{
+  width:100%;padding:16px;margin-top:20px;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+  border:1px solid rgba(255,255,255,.3);border-radius:14px;
+  font-family:inherit;font-size:1.05rem;font-weight:600;
+  box-shadow:0 4px 15px rgba(37,99,235,.4),inset 0 1px 3px rgba(255,255,255,.4);
+}
+.btn-primary:active{transform:scale(.98)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* รายการหุ้น */
+.stk-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px;border-bottom:1px solid rgba(255,255,255,.1);
+}
+.stk-item:last-child{border:none}
+.stk-left .sym{font-weight:700;font-size:1.1rem;text-shadow:0 1px 3px rgba(0,0,0,.4)}
+.stk-left .avg{font-size:.75rem;color:rgba(255,255,255,.6);margin-top:2px}
+.stk-right{text-align:right}
+.stk-right .val{font-weight:700;font-size:1.05rem}
+.stk-right .pl{font-size:.8rem;margin-top:2px;font-weight:600}
+
+/* อัปเดตราคา */
+.price-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.price-row .sym{width:70px;font-weight:700}
+.price-row input{flex:1;padding:10px}
+
+/* ประวัติ/อื่นๆ */
+.tx-item{font-size:.8rem;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,.1);display:flex;justify-content:space-between}
+.tx-sym{font-weight:700}
+.tx-type.buy{color:#60a5fa}
+.tx-type.sell{color:#f472b6}
+
+.hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hd">
+    <h1>📈 พอร์ตการลงทุน</h1>
+  </div>
+
+  <!-- TAB: แดชบอร์ด -->
+  <div id="tabDashboard">
+    <div class="box">
+      <div class="dash-total">
+        <div class="lbl">มูลค่าพอร์ตปัจจุบัน</div>
+        <div class="val" id="dTotalVal">฿0.00</div>
+      </div>
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="ds-lbl">ต้นทุนรวม</div>
+          <div class="ds-val" id="dTotalCost">฿0.00</div>
+        </div>
+        <div class="dash-card">
+          <div class="ds-lbl">กำไร/ขาดทุน องค์รวม</div>
+          <div class="ds-val text-up" id="dUnrealized">+฿0.00 (0.00%)</div>
+        </div>
+        <div class="dash-card">
+          <div class="ds-lbl">กำไรที่ขายแล้ว (Realized)</div>
+          <div class="ds-val" id="dRealized">฿0.00</div>
+        </div>
+        <div class="dash-card">
+          <div class="ds-lbl">เทียบดัชนี S&P 500</div>
+          <div class="ds-val" id="dSP500">แพ้/ชนะ --</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- กราฟสัดส่วนพอร์ต -->
+    <div class="box">
+      <div style="font-weight:600;margin-bottom:10px;font-size:.9rem">📊 สัดส่วนการลงทุน (Allocation)</div>
+      <div class="chart-container">
+        <canvas id="portChart"></canvas>
+      </div>
+    </div>
+
+    <!-- หุ้นที่ถือ (Holdings) -->
+    <div class="box">
+      <div style="font-weight:600;margin-bottom:10px;font-size:.9rem;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:10px">💼 หุ้นที่ถืออยู่</div>
+      <div id="holdingsList"></div>
+    </div>
+  </div>
+
+  <!-- TAB: บันทึกซื้อขาย -->
+  <div id="tabTrade" class="hide">
+    <div class="box">
+      <div style="font-weight:700;margin-bottom:15px">🛒 บันทึกรายการใหม่</div>
+      
+      <div class="row2">
+        <div>
+          <label>ประเภท</label>
+          <select id="tType">
+            <option value="buy">ซื้อ (Buy)</option>
+            <option value="sell">ขาย (Sell)</option>
+          </select>
+        </div>
+        <div>
+          <label>วันที่</label>
+          <input type="date" id="tDate">
+        </div>
+      </div>
+
+      <label>สัญลักษณ์หุ้น / ชื่อ</label>
+      <input type="text" id="tSym" placeholder="เช่น AAPL, PTT" oninput="this.value=this.value.toUpperCase()">
+
+      <div class="row2">
+        <div>
+          <label>จำนวน (หุ้น)</label>
+          <input type="number" id="tShares" inputmode="decimal" placeholder="0">
+        </div>
+        <div>
+          <label>ราคาต่อหุ้น</label>
+          <input type="number" id="tPrice" inputmode="decimal" placeholder="0.00">
+        </div>
+      </div>
+      
+      <label>ค่าธรรมเนียม / คอมมิชชั่น</label>
+      <input type="number" id="tComm" inputmode="decimal" placeholder="0.00">
+
+      <button class="btn-primary" onclick="addTrade()">บันทึกรายการ</button>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;margin-bottom:10px">ประวัติซื้อขาย 5 รายการล่าสุด</div>
+      <div id="txHistory"></div>
+    </div>
+  </div>
+
+  <!-- TAB: อัปเดตราคา -->
+  <div id="tabPrices" class="hide">
+    <div class="box">
+      <div style="font-weight:700;margin-bottom:5px">🔄 อัปเดตราคาปัจจุบัน</div>
+      <div style="font-size:.75rem;color:rgba(255,255,255,.7);margin-bottom:16px">กรอกราคาตลาดปัจจุบันเพื่อให้แอปคำนวณกำไร-ขาดทุนล่าสุด</div>
+      
+      <div id="priceInputs"></div>
+      
+      <button class="btn-primary" onclick="savePrices()">บันทึกราคาล่าสุด</button>
+    </div>
+  </div>
+
+  <!-- TAB: ตั้งค่า (Export/Import/S&P) -->
+  <div id="tabSettings" class="hide">
+    <div class="box">
+      <div style="font-weight:700;margin-bottom:10px">⚙️ ตั้งค่าระบบ</div>
+      
+      <label>อัตราผลตอบแทน S&P 500 ปีนี้ (%)</label>
+      <input type="number" id="sSP500" inputmode="decimal" placeholder="เช่น 15.5">
+      <button class="btn-primary" style="padding:10px;margin-top:10px" onclick="saveSettings()">บันทึกค่า</button>
+    </div>
+
+    <div class="box">
+      <div style="font-weight:700;margin-bottom:10px">💾 จัดการข้อมูลสำรอง (JSON)</div>
+      <button class="btn-primary" style="padding:12px;background:rgba(255,255,255,.1);margin-top:0" onclick="exportData()">⬇️ ดาวน์โหลด (Export)</button>
+      
+      <label style="margin-top:20px">นำเข้าข้อมูล (Import)</label>
+      <input type="file" id="importFile" accept=".json" style="padding:10px;font-size:.8rem">
+      <button class="btn-primary" style="padding:12px;background:rgba(244,114,182,.3);border-color:rgba(244,114,182,.5)" onclick="importData()">⬆️ โหลดนำเข้าทับข้อมูลเดิม</button>
+    </div>
+    
+    <button class="btn-primary" style="background:#ef4444;border-color:#f87171" onclick="clearAll()">ลบข้อมูลทั้งหมดในระบบ</button>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="nav">
+  <button id="nDash" class="on" onclick="nav('Dashboard')"><span class="ic">📊</span>พอร์ต</button>
+  <button id="nTrade" onclick="nav('Trade')"><span class="ic">🛒</span>วิเคราะห์</button>
+  <button id="nPrices" onclick="nav('Prices')"><span class="ic">📈</span>อัปเดต</button>
+  <button id="nSet" onclick="nav('Settings')"><span class="ic">⚙️</span>ตั่งค่า</button>
+</div>
+
+<script>
+// --- State Management ---
+let txs = JSON.parse(localStorage.getItem('portTxs')) || [];
+let prices = JSON.parse(localStorage.getItem('portPrices')) || {};
+let sp500_ret = parseFloat(localStorage.getItem('portSP500')) || 0;
+let holdings = {};
+let myChart = null;
+
+// ตั้งวันที่วันนี้ให้ฟอร์มซื้อขาย
+document.getElementById('tDate').valueAsDate = new Date();
+document.getElementById('sSP500').value = sp500_ret;
+
+// --- จัดการ Tab Navigation ---
+function nav(tab) {
+  ['Dashboard','Trade','Prices','Settings'].forEach(t => {
+    document.getElementById('tab'+t).classList.add('hide');
+    document.getElementById('n'+t.substring(0,4)).classList.remove('on');
+    // พิเศษตัวเลือก
+    let btnID = 'n' + (t==='Dashboard'?'Dash':(t==='Settings'?'Set':t));
+    document.getElementById(btnID).classList.remove('on');
+  });
+  
+  document.getElementById('tab'+tab).classList.remove('hide');
+  let activeBtn = 'n' + (tab==='Dashboard'?'Dash':(tab==='Settings'?'Set':tab));
+  document.getElementById(activeBtn).classList.add('on');
+
+  if(tab === 'Dashboard') renderDashboard();
+  if(tab === 'Trade') renderHistory();
+  if(tab === 'Prices') renderPricesTab();
+}
+
+// --- ฟอร์แมตตัวเลข ---
+function fmt(num) {
+  return num.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// --- คำนวณ Portfolio ---
+function calcHoldings() {
+  holdings = {};
+  let totalRealized = 0;
+
+  // วนลูปประวัติซื้อขาย (FIFO/Avg)
+  txs.forEach(tx => {
+    let sym = tx.sym;
+    if(!holdings[sym]) holdings[sym] = { shares: 0, total_cost: 0, realized: 0 };
+    
+    let h = holdings[sym];
+    let sh = parseFloat(tx.shares);
+    let p = parseFloat(tx.price);
+    let comm = parseFloat(tx.comm) || 0;
+
+    if(tx.type === 'buy') {
+      h.shares += sh;
+      h.total_cost += (p * sh) + comm; // ทุน=ราคา+คอม
+      // ใส่ราคาเริ่มต้นในคลังราคาอัตโนมัติถ้าไม่มี
+      if(!prices[sym]) prices[sym] = p;
+    } else if(tx.type === 'sell') {
+      if(h.shares > 0) {
+        let avgCost = h.total_cost / h.shares;
+        h.shares -= sh;
+        h.total_cost -= (avgCost * sh); // ลดทุนตามสัดส่วน
+        let revenue = (p * sh) - comm; // รายรับ=ราคา-คอม
+        let profit = revenue - (avgCost * sh);
+        h.realized += profit;
+        totalRealized += profit;
+      }
+    }
+  });
+
+  return totalRealized;
+}
+
+// --- แสดงหน้า Dashboard ---
+function renderDashboard() {
+  let totRealized = calcHoldings();
+  let totCost = 0;
+  let totVal = 0;
+  
+  let hList = document.getElementById('holdingsList');
+  hList.innerHTML = '';
+  
+  let chartLabels = [];
+  let chartData = [];
+  let chartColors = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+
+  // สร้าง UI สำหรับหุ้นที่มีอยู่ (Share > 0)
+  Object.keys(holdings).forEach(sym => {
+    let h = holdings[sym];
+    if(h.shares <= 0.0001) return; // ไม่นำมาคิดถ้าขายหมดแล้ว
+    
+    let avgCost = h.total_cost / h.shares;
+    let curPrice = prices[sym] || avgCost;
+    let curVal = h.shares * curPrice;
+    
+    totCost += h.total_cost;
+    totVal += curVal;
+    
+    let unrealized = curVal - h.total_cost;
+    let p_pct = (unrealized / h.total_cost) * 100;
+    
+    // ข้อมูลกราฟ
+    chartLabels.push(sym);
+    chartData.push(curVal);
+
+    // สร้างกล่อง
+    let cssColor = unrealized >= 0 ? 'text-up' : 'text-down';
+    let sign = unrealized >= 0 ? '+' : '';
+    
+    hList.innerHTML += `
+      <div class="stk-item">
+        <div class="stk-left">
+          <div class="sym">${sym}</div>
+          <div class="avg">${h.shares} หุ้น | ทุน ${fmt(avgCost)} | ปัจจุบัน ${fmt(curPrice)}</div>
+        </div>
+        <div class="stk-right">
+          <div class="val">฿${fmt(curVal)}</div>
+          <div class="pl ${cssColor}">${sign}฿${fmt(unrealized)} (${sign}${fmt(p_pct)}%)</div>
+        </div>
+      </div>
+    `;
+  });
+
+  if(hList.innerHTML === '') hList.innerHTML = '<div style="text-align:center;font-size:.85rem;color:#999;padding:10px">ยังไม่มีหุ้นในพอร์ต (ไปที่หน้าวิเคราะห์เพื่อเพิ่มการซื้อ)</div>';
+
+  // สรุปยอดรวมแผงหน้า
+  let totUnrealized = totVal - totCost;
+  let totPct = totCost > 0 ? (totUnrealized / totCost) * 100 : 0;
+  
+  document.getElementById('dTotalVal').innerText = '฿' + fmt(totVal);
+  document.getElementById('dTotalCost').innerText = '฿' + fmt(totCost);
+  
+  let unEl = document.getElementById('dUnrealized');
+  let signTot = totUnrealized >= 0 ? '+' : '';
+  unEl.innerText = `${signTot}฿${fmt(totUnrealized)} (${signTot}${fmt(totPct)}%)`;
+  unEl.className = 'ds-val ' + (totUnrealized >= 0 ? 'text-up' : 'text-down');
+
+  // Realized
+  let reEl = document.getElementById('dRealized');
+  reEl.innerText = `${totRealized >= 0 ? '+฿' : '฿'}${fmt(totRealized)}`;
+  reEl.style.color = totRealized >= 0 ? '#34d399' : '#f87171';
+
+  // S&P 500
+  let spEl = document.getElementById('dSP500');
+  if(totCost === 0) {
+    spEl.innerText = '--';
+    spEl.style.color = '#fff';
+  } else {
+    let diff = totPct - sp500_ret;
+    if(diff >= 0) {
+      spEl.innerText = `ชนะ (+${fmt(diff)}%)`;
+      spEl.className = 'ds-val text-up';
+    } else {
+      spEl.innerText = `แพ้ (${fmt(diff)}%)`;
+      spEl.className = 'ds-val text-down';
+    }
+  }
+
+  // วาดกราฟ Doughnut (Chart.js)
+  if(myChart) myChart.destroy();
+  let ctx = document.getElementById('portChart').getContext('2d');
+  
+  if(chartData.length > 0) {
+    Chart.defaults.color = "rgba(255,255,255,0.7)";
+    myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: chartLabels,
+        datasets: [{
+          data: chartData,
+          backgroundColor: chartColors,
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels:{ boxWidth:12, font:{family:'Prompt'} } }
+        },
+        cutout: '65%'
+      }
+    });
+  } else {
+    // กราฟเปล่าถ้าไม่มีหุ้น
+    myChart = new Chart(ctx, {
+      type: 'doughnut', data:{ labels:['ไม่มีหุ้น'], datasets:[{ data:[1], backgroundColor:['#334155']}] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'} }, cutout:'65%'}
+    });
+  }
+}
+
+// --- การซื้อขาย ---
+function addTrade() {
+  let type = document.getElementById('tType').value;
+  let date = document.getElementById('tDate').value;
+  let sym = document.getElementById('tSym').value.trim();
+  let shares = parseFloat(document.getElementById('tShares').value);
+  let price = parseFloat(document.getElementById('tPrice').value);
+  let comm = parseFloat(document.getElementById('tComm').value) || 0;
+
+  if(!sym || isNaN(shares) || isNaN(price) || shares<=0 || price<=0) {
+    alert("กรุณากรอก สัญลักษณ์, จำนวน และราคา ให้ถูกต้อง"); return;
+  }
+
+  // เซฟเข้าประวัติ
+  txs.push({
+    id: Date.now(),
+    date: date, type: type, sym: sym, shares: shares, price: price, comm: comm
+  });
+  
+  // เรียงวันที่เก่านำหน้า
+  txs.sort((a,b) => new Date(a.date) - new Date(b.date));
+  localStorage.setItem('portTxs', JSON.stringify(txs));
+
+  document.getElementById('tSym').value = '';
+  document.getElementById('tShares').value = '';
+  document.getElementById('tPrice').value = '';
+  document.getElementById('tComm').value = '';
+
+  alert(`บันทึก ${type==='buy'?'ซื้อ':'ขาย'} ${sym} เรียบร้อย!`);
+  calcHoldings();
+  renderHistory();
+}
+
+function renderHistory() {
+  let box = document.getElementById('txHistory');
+  box.innerHTML = '';
+  let recent = [...txs].sort((a,b) => b.id - a.id).slice(0, 5); // เอา 5 อันล่าสุดมาโชว์
+
+  if(recent.length === 0) {
+    box.innerHTML = '<div style="font-size:.8rem;color:#999">ยังไม่มีประวัติการทำรายการ</div>';
+    return;
+  }
+
+  recent.forEach(tx => {
+    let tLabel = tx.type === 'buy' ? 'ซื้อ' : 'ขาย';
+    let tClass = tx.type === 'buy' ? 'buy' : 'sell';
+    box.innerHTML += `
+      <div class="tx-item">
+        <div><span class="tx-type ${tClass}">${tLabel}</span> <span class="tx-sym">${tx.sym}</span><br><span style="color:#999">${tx.date}</span></div>
+        <div style="text-align:right">${tx.shares} หุ้น @ ฿${fmt(tx.price)}<br><span style="color:#999">คอม ฿${fmt(tx.comm)}</span></div>
+      </div>
+    `;
+  });
+}
+
+// --- อัปเดตราคาล่าสุด ---
+function renderPricesTab() {
+  let keys = Object.keys(holdings).filter(s => holdings[s].shares > 0);
+  let pBox = document.getElementById('priceInputs');
+  pBox.innerHTML = '';
+
+  if(keys.length === 0) {
+    pBox.innerHTML = '<div style="font-size:.85rem;color:#999">ไม่มีหุ้นในพอร์ต ไม่ต้องอัปเดตราคา</div>';
+    return;
+  }
+
+  keys.forEach(sym => {
+    let cur = prices[sym] || holdings[sym].total_cost / holdings[sym].shares;
+    pBox.innerHTML += `
+      <div class="price-row">
+        <div class="sym">${sym}</div>
+        <input type="number" id="pr_${sym}" inputmode="decimal" value="${round2(cur)}">
+      </div>
+    `;
+  });
+}
+
+function savePrices() {
+  let keys = Object.keys(holdings).filter(s => holdings[s].shares > 0);
+  keys.forEach(sym => {
+    let inp = document.getElementById('pr_'+sym);
+    if(inp && !isNaN(parseFloat(inp.value))) {
+      prices[sym] = parseFloat(inp.value);
+    }
+  });
+  localStorage.setItem('portPrices', JSON.stringify(prices));
+  alert('บันทึกราคาล่าสุดเรียบร้อย กำไรคำนวณใหม่แล้ว!');
+}
+
+// --- ตั้งค่า / Export Import ---
+function saveSettings() {
+  let s = parseFloat(document.getElementById('sSP500').value) || 0;
+  sp500_ret = s;
+  localStorage.setItem('portSP500', sp500_ret);
+  alert('บันทึกค่าผลตอบแทนเปรียบเทียบเรียบร้อย');
+}
+
+function exportData() {
+  let data = {
+    transactions: txs,
+    prices: prices,
+    sp500: sp500_ret
+  };
+  let blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = `portfolio_backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  let fileInp = document.getElementById('importFile');
+  if(!fileInp.files || fileInp.files.length === 0) {
+    alert("กรุณาเลือกไฟล์ JSON ก่อน"); return;
+  }
+  let file = fileInp.files[0];
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      let data = JSON.parse(e.target.result);
+      if(data.transactions) {
+        txs = data.transactions;
+        prices = data.prices || {};
+        sp500_ret = data.sp500 || 0;
+        
+        localStorage.setItem('portTxs', JSON.stringify(txs));
+        localStorage.setItem('portPrices', JSON.stringify(prices));
+        localStorage.setItem('portSP500', sp500_ret);
+        
+        document.getElementById('sSP500').value = sp500_ret;
+        calcHoldings();
+        renderDashboard();
+        alert('กู้คืนข้อมูลสำเร็จ!');
+      } else {
+        alert('ไฟล์ไม่ถูกต้อง ไม่พบข้อมูล Pofolio');
+      }
+    } catch(err) {
+      alert('Error: ไม่สามารถอ่านไฟล์ JSON ได้');
+    }
+  }
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if(confirm("คำเตือน: ยืนยันการลบข้อมูลซื้อขายทั้งหมด? (ไม่สามารถกู้คืนได้)")) {
+    txs = []; prices = {}; sp500_ret = 0;
+    localStorage.removeItem('portTxs');
+    localStorage.removeItem('portPrices');
+    localStorage.removeItem('portSP500');
+    calcHoldings();
+    renderDashboard();
+    renderHistory();
+    alert('ลบข้อมูลเรียบร้อยแล้ว');
+  }
+}
+
+function round2(num) {
+  return Math.round(num * 100) / 100;
+}
+
+// --- เริ่มต้นโหลด ---
+window.onload = function() {
+  calcHoldings();
+  renderDashboard();
+}
+
+</script>
+</body>
+</html>
