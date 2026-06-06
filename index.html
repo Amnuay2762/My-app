@@ -1,0 +1,62 @@
+<!DOCTYPE html> <html lang="th"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>My Apps</title> <meta name="apple-mobile-web-app-title" content="My Apps"> <meta name="apple-mobile-web-app-capable" content="yes"> <meta name="theme-color" content="#0284c7"> <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230284c7'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' fill='url(%23g)'/%3E%3CforeignObject x='0' y='0' width='180' height='180'%3E%3Cdiv xmlns='http://www.w3.org/1999/xhtml' style='width:180px;height:180px;display:flex;align-items:center;justify-content:center;font-size:100px'%3E%F0%9F%93%B1%3C/div%3E%3C/foreignObject%3E%3C/svg%3E"> <link rel="preconnect" href="https://fonts.googleapis.com"> <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet"> <style> *{box-sizing:border-box;margin:0;padding:0} body{ font-family:'Prompt',-apple-system,sans-serif; color:#fff;min-height:100vh; background:linear-gradient(135deg,#0ea5e9,#0284c7,#06b6d4,#3b82f6,#0891b2); background-size:400% 400%; animation:bgmove 16s ease infinite; display:flex;flex-direction:column; } @keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+body::before{
+content:'';position:fixed;top:-120px;right:-100px;
+width:340px;height:340px;
+background:radial-gradient(circle,rgba(255,255,255,.4),transparent 65%);
+border-radius:50%;pointer-events:none;z-index:0;
+animation:float1 11s ease-in-out infinite;
+}
+body::after{
+content:'';position:fixed;bottom:-100px;left:-90px;
+width:300px;height:300px;
+background:radial-gradient(circle,rgba(56,189,248,.5),transparent 65%);
+border-radius:50%;pointer-events:none;z-index:0;
+animation:float2 13s ease-in-out infinite;
+}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,40px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-30px)}}
+
+.head{text-align:center;padding:40px 20px 20px;position:relative;z-index:1}
+.head .emoji{font-size:3rem;margin-bottom:8px}
+.head h1{font-size:1.6rem;font-weight:700;text-shadow:0 2px 14px rgba(0,0,0,.3)}
+.head p{font-size:.85rem;opacity:.9;margin-top:4px}
+
+.menu{flex:1;padding:10px 20px 30px;max-width:480px;margin:0 auto;width:100%;position:relative;z-index:1}
+
+.app-card{
+display:flex;align-items:center;gap:16px;
+padding:20px;margin-bottom:14px;
+border:1.5px solid rgba(255,255,255,.4);
+border-radius:22px;
+background:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,.08));
+backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+box-shadow:0 8px 28px rgba(0,0,0,.15),inset 0 2px 4px rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.1);
+text-decoration:none;color:#fff;
+position:relative;overflow:hidden;
+transition:all .25s ease;
+}
+.app-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:50%;
+background:linear-gradient(180deg,rgba(255,255,255,.35),transparent);
+border-radius:22px 22px 60% 60%;pointer-events:none;
+}
+.app-card:active{transform:scale(.97);background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,255,255,.15))}
+
+.app-card .icon{
+width:60px;height:60px;flex-shrink:0;
+border-radius:18px;
+background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,.12));
+border:1px solid rgba(255,255,255,.4);
+display:flex;align-items:center;justify-content:center;
+font-size:2rem;
+box-shadow:inset 0 1px 3px rgba(255,255,255,.5);
+}
+.app-card .info{flex:1}
+.app-card .info .nm{font-size:1.15rem;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.25)}
+.app-card .info .ds{font-size:.78rem;opacity:.88;margin-top:2px}
+.app-card .arrow{font-size:1.3rem;opacity:.7}
+
+.foot{text-align:center;font-size:.72rem;opacity:.7;padding:10px 20px 24px;position:relative;z-index:1}
+</style>
+
+</head> <body> <div class="head"> <div class="emoji">📱</div> <h1>My Apps</h1> <p>เลือกแอปที่ต้องการใช้งาน</p> </div> <div class="menu"> <a class="app-card" href="money.html"> <div class="icon">💰</div> <div class="info"> <div class="nm">เงินของฉัน</div> <div class="ds">บันทึกรายรับ-รายจ่าย</div> </div> <div class="arrow">›</div> </a> <a class="app-card" href="bill_split.html"> <div class="icon">🧾</div> <div class="info"> <div class="nm">หารบิล</div> <div class="ds">แบ่งจ่ายกับเพื่อน / Grab</div> </div> <div class="arrow">›</div> </a> <a class="app-card" href="alligation.html"> <div class="icon">💉</div> <div class="info"> <div class="nm">ผสมน้ำเกลือ</div> <div class="ds">คำนวณ Alligation</div> </div> <div class="arrow">›</div> </a> <a class="app-card" href="interactive-dashboard.html"> <div class="icon">📊</div> <div class="info"> <div class="nm">Dashboard</div> <div class="ds">แดชบอร์ดข้อมูล</div> </div> <div class="arrow">›</div> </a> </div> <div class="foot">© My Apps • รวมแอปทั้งหมดในที่เดียว</div> </body> </html>
