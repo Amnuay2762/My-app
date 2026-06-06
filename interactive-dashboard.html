@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Shift Sync: Pharmacy Night Shift Analyzer</title>
+    <!-- นำเข้าไลบรารีอ่านไฟล์ Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); color: var(--text); padding: 40px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Upload Zone */
+        .upload-zone {
+            background: var(--card); border: 3px dashed #cbd5e1;
+            padding: 40px; text-align: center; border-radius: 15px; margin-bottom: 30px;
+            transition: 0.3s; cursor: pointer;
+        }
+        .upload-zone:hover { border-color: var(--primary); background: #f1f5f9; }
+        input[type="file"] { display: none; }
+
+        /* Dashboard Styles */
+        .dashboard { display: none; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        h1, h2 { margin-bottom: 20px; color: var(--primary); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { font-size: 13px; color: #64748b; text-transform: uppercase; }
+
+        .count-badge { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 12px; font-weight: bold; }
+        .status-tag { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+        .status-heavy { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏥 ระบบวิเคราะห์เวรดึกอัตโนมัติ</h1>
+    <p style="margin-bottom: 20px;">อัปโหลดไฟล์ Excel เพื่อสรุปว่าใครคู่กับใคร และใครทำงานหนักที่สุด</p>
+
+    <label class="upload-zone" id="drop-area">
+        <div style="font-size: 50px;">📄</div>
+        <p>คลิกเพื่อเลือกไฟล์ Excel หรือลากไฟล์มาวางที่นี่</p>
+        <input type="file" id="fileInput" accept=".xlsx, .xls">
+    </label>
+
+    <div id="dashboard" class="dashboard">
+        <div class="grid">
+            <!-- สรุปคู่หู -->
+            <div class="card">
+                <h2>🏆 คู่เวรดึกซ้ำบ่อยที่สุด</h2>
+                <table id="pairingTable">
+                    <thead><tr><th>คู่พนักงาน</th><th>จำนวนครั้งที่คู่กัน</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- สรุปภาระงาน -->
+            <div class="card">
+                <h2>🔥 ภาระงานรายบุคคล (เวรดึก)</h2>
+                <table id="workloadTable">
+                    <thead><tr><th>ชื่อ-นามสกุล</th><th>จำนวนเวรดึก</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const dashboard = document.getElementById('dashboard');
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            
+            // อ่านชีทแรก
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
+            
+            analyzeShifts(jsonData);
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function analyzeShifts(data) {
+        let nightShiftsByDay = {}; // { dayIndex: [Name1, Name2] }
+        let individualCounts = {}; // { Name: count }
+
+        // 1. วนลูปหา "ดึก I"
+        data.forEach(row => {
+            const name = row[0]; // สมมติชื่ออยู่คอลัมน์แรก
+            if (!name || typeof name !== 'string') return;
+
+            row.forEach((cell, index) => {
+                if (cell && String(cell).includes("ดึก I")) {
+                    // นับชั่วโมงรายคน
+                    individualCounts[name] = (individualCounts[name] || 0) + 1;
+                    
+                    // เก็บข้อมูลรายวันเพื่อหาคู่
+                    if (!nightShiftsByDay[index]) nightShiftsByDay[index] = [];
+                    nightShiftsByDay[index].push(name);
+                }
+            });
+        });
+
+        // 2. วิเคราะห์การจับคู่
+        let pairings = {};
+        Object.values(nightShiftsByDay).forEach(names => {
+            if (names.length >= 2) {
+                // จับคู่กรณีมี 2 คนขึ้นไป
+                for (let i = 0; i < names.length; i++) {
+                    for (let j = i + 1; j < names.length; j++) {
+                        const couple = [names[i], names[j]].sort().join(" + ");
+                        pairings[couple] = (pairings[couple] || 0) + 1;
+                    }
+                }
+            }
+        });
+
+        updateUI(individualCounts, pairings);
+    }
+
+    function updateUI(counts, pairs) {
+        dashboard.style.display = 'block';
+        
+        // Update Individual Workload
+        const workloadBody = document.querySelector('#workloadTable tbody');
+        workloadBody.innerHTML = '';
+        Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([name, count]) => {
+                const row = `<tr>
+                    <td>${name}</td>
+                    <td><span class="count-badge">${count} ครั้ง</span> 
+                    ${count >= 4 ? '<span class="status-tag status-heavy">งานหนัก</span>' : ''}</td>
+                </tr>`;
+                workloadBody.innerHTML += row;
+            });
+
+        // Update Pairs
+        const pairingBody = document.querySelector('#pairingTable tbody');
+        pairingBody.innerHTML = '';
+        Object.entries(pairs)
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([pair, count]) => {
+                const row = `<tr>
+                    <td><strong>${pair}</strong></td>
+                    <td>${count} วัน</td>
+                </tr>`;
+                pairingBody.innerHTML += row;
+            });
+            
+        window.scrollTo({ top: dashboard.offsetTop, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
