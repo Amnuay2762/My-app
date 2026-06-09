@@ -28,38 +28,53 @@
         .header p { color: var(--text-muted); margin: 0; font-size: 14px; }
 
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
 
         /* Radio Buttons (เม็ด/น้ำ) */
         .radio-group { display: flex; gap: 10px; }
-        .radio-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px 5px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; color: var(--text-muted); font-size: 14px; }
+        .radio-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px 5px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; color: var(--text-muted); font-size: 15px; }
         .radio-card input { display: none; }
         .radio-card.active { border-color: var(--primary); background-color: #f0f9ff; color: var(--primary); }
 
-        input[type="number"] { width: 100%; padding: 14px 15px; font-size: 18px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; transition: 0.2s; background: #f8fafc; }
+        input[type="number"] { width: 100%; padding: 14px 15px; font-size: 20px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; transition: 0.2s; background: #f8fafc; font-weight: bold; text-align: center;}
         input[type="number"]:focus { border-color: var(--primary); background: #fff; }
 
-        button { width: 100%; background-color: var(--primary); color: white; border: none; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2); margin-bottom: 10px; }
+        button { width: 100%; background-color: var(--primary); color: white; border: none; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2); }
         button:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
 
         /* Result Section */
-        .result-box { display: none; margin-top: 15px; animation: fadeIn 0.3s ease-in-out; }
+        .result-box { display: none; margin-top: 25px; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .dosage-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 12px; position: relative; overflow: hidden; }
+        .dosage-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
         .dosage-card::before { content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background-color: var(--primary); }
         .dosage-card.day2-5::before { background-color: var(--success); }
 
-        .dose-title { font-size: 15px; font-weight: bold; color: #334155; margin-bottom: 8px; }
+        .dose-title { font-size: 15px; font-weight: bold; color: #334155; margin-bottom: 10px; }
         .dose-detail { display: flex; justify-content: space-between; align-items: center; }
         .dose-mg { color: var(--text-muted); font-size: 14px; }
-        .dose-val { font-size: 26px; font-weight: 800; color: var(--primary-dark); text-align: right; line-height: 1.1; }
+        .dose-val { font-size: 26px; font-weight: 800; color: var(--primary-dark); text-align: right; }
         .dose-unit { font-size: 14px; font-weight: normal; color: var(--text-muted); }
 
-        .total-box { background-color: #fff8f1; border: 2px dashed #fde047; border-radius: 12px; padding: 15px; text-align: center; margin-top: 15px; }
-        .total-title { font-size: 14px; color: #92400e; font-weight: 600; margin-bottom: 5px; }
-        .total-num { font-size: 26px; font-weight: 800; color: #d97706; margin-bottom: 5px; }
-        .bottle-dispense { font-size: 15px; font-weight: bold; color: #b45309; background: #fef08a; display: inline-block; padding: 5px 15px; border-radius: 8px; margin-top: 5px;}
+        .total-box { background-color: #fff8f1; border: 2px dashed #fde047; border-radius: 12px; padding: 15px; text-align: center; margin-top: 20px; }
+        .total-title { font-size: 15px; color: #92400e; font-weight: 600; margin-bottom: 5px; }
+        .total-num { font-size: 26px; font-weight: 800; color: #d97706; margin-bottom: 5px;}
+        
+        /* สไตล์สำหรับกล่องระบุขนาดยาน้ำที่ต้องจัดให้ผู้ป่วย (เด่นๆ) */
+        .bottle-dispense { 
+            font-size: 22px; 
+            font-weight: 900; 
+            color: #b91c1c; 
+            margin-top: 15px; 
+            background: #fef2f2; 
+            border: 2px dashed #ef4444; 
+            display: block; 
+            padding: 15px; 
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.1);
+            line-height: 1.4;
+        }
 
     </style>
 </head>
@@ -68,7 +83,7 @@
 <div class="container">
     <div class="header">
         <h1>💊 Favipiravir Calculator</h1>
-        <p>แอปคำนวณขนาดยา (อ้างอิงตาราง รพ.)</p>
+        <p>แอปคำนวณขนาดยา (อ้างอิง CPG และตาราง รพ.)</p>
     </div>
 
     <!-- ส่วนกรอกข้อมูล -->
@@ -87,7 +102,7 @@
     </div>
 
     <div class="form-group">
-        <label>น้ำหนักตัวผู้ป่วย (กิโลกรัม)</label>
+        <label>น้ำหนักตัวผู้ป่วย (kg)</label>
         <input type="number" id="weight" step="0.1" min="1" placeholder="ระบุน้ำหนัก (กก.)">
     </div>
 
@@ -99,10 +114,7 @@
             <div class="dose-title">📅 วันที่ 1 (Loading Dose)</div>
             <div class="dose-detail">
                 <div class="dose-mg"><span id="valMgD1">-</span> mg <br>รับประทาน <b>ทุก 12 ชม.</b></div>
-                <div class="dose-val">
-                    <span id="valUnitD1">-</span> <span class="dose-unit" id="txtUnit1"></span><br>
-                    <span style="font-size:12px; font-weight:normal; color:#64748b;">(ปริมาณต่อมื้อ)</span>
-                </div>
+                <div class="dose-val"><span id="valUnitD1">-</span> <span class="dose-unit" id="txtUnit1"></span><br><span style="font-size:12px; font-weight:normal; color:#64748b;">(มื้อละ)</span></div>
             </div>
         </div>
 
@@ -110,16 +122,15 @@
             <div class="dose-title">📅 วันที่ 2 - 5 (Maintenance)</div>
             <div class="dose-detail">
                 <div class="dose-mg"><span id="valMgD2">-</span> mg <br>รับประทาน <b>ทุก 12 ชม.</b></div>
-                <div class="dose-val">
-                    <span id="valUnitD2">-</span> <span class="dose-unit" id="txtUnit2"></span><br>
-                    <span style="font-size:12px; font-weight:normal; color:#64748b;">(ปริมาณต่อมื้อ)</span>
-                </div>
+                <div class="dose-val"><span id="valUnitD2">-</span> <span class="dose-unit" id="txtUnit2"></span><br><span style="font-size:12px; font-weight:normal; color:#64748b;">(มื้อละ)</span></div>
             </div>
         </div>
         
         <div class="total-box">
-            <div class="total-title">📌 จำนวนยารวมที่ต้องจ่าย (คอร์ส 5 วัน)</div>
+            <div class="total-title" id="txtTotalTitle">ปริมาตรรวมที่ต้องใช้ (คอร์ส 5 วัน)</div>
             <div class="total-num" id="valTotal">-</div>
+            
+            <!-- กล่องแสดงจำนวนขวดที่ต้องจ่าย (จะซ่อนไว้ถ้าเป็นยาเม็ด) -->
             <div id="bottleArea" style="display:none;">
                 <div class="bottle-dispense" id="valBottles">-</div>
             </div>
@@ -140,16 +151,12 @@
         
         const wtInput = document.getElementById('weight');
         if(type === 'suspension') {
-            wtInput.placeholder = "น้ำหนักเด็ก (ตัดตายตัวที่ 50 กก.)";
+            wtInput.placeholder = "น้ำหนักเด็ก (ตัดที่ 50 กก.)";
+            document.getElementById('txtTotalTitle').innerText = "ปริมาตรรวมที่ต้องใช้ (คอร์ส 5 วัน)";
         } else {
             wtInput.placeholder = "ระบุน้ำหนัก (กก.)";
+            document.getElementById('txtTotalTitle').innerText = "จำนวนยาเม็ดรวมที่ต้องจ่าย (คอร์ส 5 วัน)";
         }
-    }
-
-    // ฟังก์ชันช่วยปัดทศนิยม 1 ตำแหน่ง (ถ้า .05 ให้ปัดขึ้น)
-    function roundToOneDecimal(num) {
-        // ใช้ Math.round แล้วหาร 10 เพื่อปัดเศษให้ถูกต้องในเชิงคณิตศาสตร์
-        return (Math.round(num * 10) / 10).toFixed(1);
     }
 
     function calculateDose() {
@@ -167,75 +174,69 @@
         let bottleText = "";
 
         if (currentForm === 'tablet') {
-            // ==========================================
-            // สูตรยาเม็ด (ผู้ใหญ่)
-            // ==========================================
             unitText = "เม็ด";
             if (wt < 90) {
-                mgDay1 = 1800; unitDay1 = 9;   // 9 tabs
-                mgDay2 = 800;  unitDay2 = 4;   // 4 tabs
+                mgDay1 = 1800; unitDay1 = 9;   
+                mgDay2 = 800;  unitDay2 = 4;   
             } else {
-                mgDay1 = 2400; unitDay1 = 12;  // 12 tabs
-                mgDay2 = 1000; unitDay2 = 5;   // 5 tabs
+                mgDay1 = 2400; unitDay1 = 12;  
+                mgDay2 = 1000; unitDay2 = 5;   
             }
             totalVal = (unitDay1 * 2) + (unitDay2 * 8) + " เม็ด";
             document.getElementById('bottleArea').style.display = 'none';
 
         } else if (currentForm === 'suspension') {
-            // ==========================================
-            // สูตรยาน้ำเด็ก Suspension (100 mg/ml) 
-            // ==========================================
             unitText = "ml";
             document.getElementById('bottleArea').style.display = 'block';
 
-            // จำกัดน้ำหนักตามตาราง Excel (ไม่ให้เกิน 50 กก.)
             let calcWt = wt;
             if (wt > 50) {
-                alert("สำหรับยาน้ำ ตารางรองรับน้ำหนักสูงสุดที่ 50 kg (หากน้ำหนักมากกว่านี้แนะนำให้พิจารณาใช้ยาเม็ดครับ)");
+                alert("ยาน้ำในตารางรองรับน้ำหนักสูงสุดที่ 50 kg หากน้ำหนักมากกว่านี้แนะนำให้ใช้ยาเม็ดครับ");
                 calcWt = 50; 
                 document.getElementById('weight').value = 50;
             }
 
-            // คำนวณ mg ตามโปรโตคอล (Day1: 35 mg/kg, Day2: 15 mg/kg)
+            // คำนวณ mg (Day1: 35 mg/kg, Day2: 15 mg/kg)
             mgDay1 = Math.round(calcWt * 35);
             mgDay2 = Math.round(calcWt * 15);
 
-            // คำนวณ ml โดยตรง
-            let rawMlDay1 = mgDay1 / 100;
-            let rawMlDay2 = mgDay2 / 100;
-
-            // ปัดทศนิยม 1 ตำแหน่งตามเงื่อนไข (เช่น 1.05 -> 1.1)
-            unitDay1 = parseFloat(roundToOneDecimal(rawMlDay1));
-            unitDay2 = parseFloat(roundToOneDecimal(rawMlDay2));
+            // คำนวณเป็น ml และปัดเศษทศนิยม 1 ตำแหน่ง (เช่น 1.05 ปัดเป็น 1.1)
+            unitDay1 = (Math.round((calcWt * 35) / 10) / 10).toFixed(1);
+            unitDay2 = (Math.round((calcWt * 15) / 10) / 10).toFixed(1);
+            
+            // แปลงกลับเป็นตัวเลขเพื่อง่ายต่อการคำนวณผลรวม
+            let calcUnitDay1 = parseFloat(unitDay1);
+            let calcUnitDay2 = parseFloat(unitDay2);
 
             // ปริมาตรรวม 5 วัน
-            let totalVolume = (unitDay1 * 2) + (unitDay2 * 8);
+            let totalVolume = (calcUnitDay1 * 2) + (calcUnitDay2 * 8);
             totalVolume = parseFloat(totalVolume.toFixed(1)); 
             
             totalVal = totalVolume + " ml";
 
-            // คำนวณขวดยาที่ต้องจ่าย (เผื่อ Loss ตามตาราง รพ.)
+            // คำนวณจำนวนขวดจ่ายยาเผื่อ Loss ตามตาราง
             let b30 = 0;
             let b60 = 0;
             
             if (calcWt <= 15) {
-                b30 = 1; // นน. 2-15 kg จ่าย 30 ml
+                b30 = 1;
             } else if (calcWt <= 30) {
-                b60 = 1; // นน. 16-30 kg จ่าย 60 ml
-            } else if (calcWt <= 46) {
-                b30 = 1; // นน. 31-46 kg เผื่อ loss จ่าย 30ml + 60ml
                 b60 = 1;
+            } else if (calcWt <= 46) {
+                b30 = 1; b60 = 1;
             } else if (calcWt <= 50) {
-                b60 = 2; // นน. 47-50 kg จ่าย 60 ml x 2 ขวด
+                b60 = 2;
             }
 
             let bTextArr = [];
-            if (b30 > 0) bTextArr.push(`ขวด (30 ml) x ${b30}`);
-            if (b60 > 0) bTextArr.push(`ขวด (60 ml) x ${b60}`);
-            bottleText = "📦 รูปแบบการปริ้นท์สติ๊กเกอร์: " + bTextArr.join('  +  ');
+            if (b30 > 0) bTextArr.push(`30 ml จำนวน ${b30} ขวด`);
+            if (b60 > 0) bTextArr.push(`60 ml จำนวน ${b60} ขวด`);
+            
+            // เปลี่ยนข้อความและทำให้เด่นขึ้น
+            bottleText = "📦 จ่ายยาขนาด<br>" + bTextArr.join(' + ');
         }
 
-        // ====== อัปเดตข้อมูลขึ้นหน้าจอ ======
+        // แสดงผล
         document.getElementById('valMgD1').innerText = mgDay1;
         document.getElementById('valUnitD1').innerText = unitDay1;
         document.getElementById('txtUnit1').innerText = unitText;
@@ -247,7 +248,7 @@
         document.getElementById('valTotal').innerText = totalVal;
         
         if (currentForm === 'suspension') {
-            document.getElementById('valBottles').innerText = bottleText;
+            document.getElementById('valBottles').innerHTML = bottleText;
         }
 
         document.getElementById('resultArea').style.display = 'block';
