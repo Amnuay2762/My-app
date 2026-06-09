@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacy Night Shift - Liquid Earth Glass</title>
+    <title>Pharmacy Night Shift - Liquid Earth Glass V5</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
         /* ตัวแปรสี Earth Tone */
@@ -14,6 +14,7 @@
             --accent-alt: #6b705c;
             --danger: #b05a46;
             --success: #6b8e6b;
+            --highlight: #2c5e7a;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -63,7 +64,7 @@
             background: rgba(255,255,255,0.7); outline: none; margin-left: 10px; cursor: pointer; font-weight: bold; color: var(--text-main);
         }
 
-        /* Validation Box (Cross-check) */
+        /* Validation Box */
         .validation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; display: none; }
         .val-card { padding: 15px 25px; text-align: center; }
         .val-card h3 { margin: 0; font-size: 14px; color: var(--text-mute); text-transform: uppercase; }
@@ -81,20 +82,48 @@
         .table-container { max-height: 400px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.4); }
-        th { background: rgba(255,255,255,0.5); font-size: 14px; position: sticky; top: 0; }
+        th { background: rgba(255,255,255,0.4); font-size: 14px; position: sticky; top: 0; backdrop-filter: blur(5px); }
         tr:hover { background: rgba(255,255,255,0.2); }
 
-        /* Badges & Tags */
+        /* Badges & Tags & Clickable */
         .badge { background: var(--accent); color: white; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
         .tag { display: inline-block; background: rgba(255,255,255,0.6); color: var(--text-main); padding: 4px 10px; border-radius: 8px; font-size: 13px; margin: 3px; border: 1px solid rgba(255,255,255,0.4); }
         #status { font-weight: bold; margin-top: 10px; color: var(--success); }
+        
+        .clickable-name { 
+            color: var(--highlight); font-weight: bold; cursor: pointer; 
+            text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 4px;
+            transition: 0.2s;
+        }
+        .clickable-name:hover { color: var(--danger); background: rgba(255,255,255,0.5); border-radius: 4px; padding: 2px 6px; }
+
+        /* Modal Pop-up */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(74, 63, 53, 0.4); backdrop-filter: blur(3px);
+            z-index: 1000; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: rgba(250, 245, 240, 0.85); backdrop-filter: blur(16px);
+            padding: 25px; border-radius: 16px; width: 90%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; border: none; background: rgba(255,255,255,0.5);
+            font-size: 18px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            color: var(--danger); font-weight: bold; transition: 0.2s;
+        }
+        .close-btn:hover { background: var(--danger); color: white; }
+        .modal-h2 { color: var(--text-main); margin-top: 0; font-size: 20px; border-bottom: 2px solid rgba(139,115,85,0.3); padding-bottom: 10px; padding-right: 25px;}
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="glass header-box">
-        <h1>🌿 ระบบวิเคราะห์ตารางเวรดึก (Earth & Glass Ver.)</h1>
+        <h1>🌿 ระบบวิเคราะห์ตารางเวรดึก (Interactive Glass Ver.)</h1>
         
         <div class="upload-box glass" onclick="document.getElementById('fileInput').click()">
             <div class="upload-icon">📄</div>
@@ -131,7 +160,7 @@
             <div class="table-container" id="pairResult">รอการอัปโหลด...</div>
         </div>
         <div class="glass card">
-            <h2>👤 ข้อมูลรายบุคคล <span id="staffTotal" style="font-size: 14px; font-weight:normal; color:var(--text-mute);"></span></h2>
+            <h2>👤 ข้อมูลรายบุคคล <span style="font-size: 12px; color:var(--danger); font-weight:normal;">*คลิกที่ชื่อเพื่อดูรายละเอียดคู่เวร</span></h2>
             <div class="table-container" id="staffResult">รอการอัปโหลด...</div>
         </div>
     </div>
@@ -139,6 +168,15 @@
     <div class="glass card">
         <h2>🙈 กลุ่มคนที่ไม่เคยเจอหน้ากันเลย (Blind Spots) <span style="font-size: 13px; font-weight: normal; color: var(--danger);">*เฉพาะคนที่มีดึกในเดือนที่เลือก</span></h2>
         <div class="table-container" id="neverPairedResult" style="max-height: 500px; padding-top: 10px;">รอการอัปโหลด...</div>
+    </div>
+</div>
+
+<!-- Modal Pop-up ซ่อนไว้สำหรับดูรายละเอียดเจาะจงบุคคล -->
+<div id="partnerModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="document.getElementById('partnerModal').style.display='none'">✕</button>
+        <h2 class="modal-h2" id="modalTitle">รายละเอียดคู่เวรดึก</h2>
+        <div id="modalBody">กำลังโหลดข้อมูล...</div>
     </div>
 </div>
 
@@ -239,12 +277,11 @@ function renderSelectedMonth() {
     let mode = document.getElementById('monthSelect').value;
     let data = storeData[mode];
 
-    // 1. ตารางแสดงข้อมูล
     renderPairs(data.pairs);
     renderStaff(data.staff);
     renderNeverPaired(data.staff, data.pairs);
 
-    // 2. แถบ Cross-check ความถูกต้อง
+    // คำนวณสรุปเพื่อเช็คความถูกต้อง
     let totalShiftsCount = Object.values(data.staff).reduce((sum, val) => sum + val, 0);
     let totalPairsCount = Object.values(data.pairs).reduce((sum, val) => sum + val, 0);
 
@@ -256,7 +293,7 @@ function renderSelectedMonth() {
         document.getElementById('valDescPairs').innerText = "ผลรวมการจับคู่ดึกทั้งหมด (ยอดสะสมทุกเดือน)";
     } else {
         document.getElementById('valDescShifts').innerText = `ระบบอ่านเจอดึกทั้งหมด ${totalShiftsCount} กะ ช่วยเช็คว่าตรงตามตารางไหม`;
-        document.getElementById('valDescPairs').innerText = `ระบบอ่านเจอคู่ดึกทั้งหมด ${totalPairsCount} ครั้ง ปกติควรเท่ากับจำนวนวัน`;
+        document.getElementById('valDescPairs').innerText = `ระบบอ่านเจอคู่ดึกทั้งหมด ${totalPairsCount} ครั้ง ยอดจะเท่ากับจำนวนวันที่จับคู่เสร็จสมบูรณ์`;
     }
 }
 
@@ -276,12 +313,17 @@ function renderPairs(pairs) {
 function renderStaff(staff) {
     let html = "<table><tr><th>ชื่อพนักงาน</th><th style='text-align:right;'>รอบดึก (ครั้ง)</th></tr>";
     let sorted = Object.keys(staff).sort((a, b) => staff[b] - staff[a]);
-    document.getElementById('staffTotal').innerText = `(มีคนขึ้นดึก ${sorted.length} คน)`;
-
+    
     if (sorted.length === 0) {
         html += "<tr><td colspan='2' style='color:var(--danger);text-align:center;'>ไม่มีข้อมูล</td></tr>";
     } else {
-        sorted.forEach(k => { html += `<tr><td><b>${k}</b></td><td style='text-align:right;'>${staff[k]}</td></tr>`; });
+        sorted.forEach(name => { 
+            // เปลี่ยนให้กดซื่อแล้วเด้งฟังก์ชันไปเปิด Modal
+            html += `<tr>
+                <td><span class="clickable-name" onclick="showPartnerDetails('${name}')">🔍 ${name}</span></td>
+                <td style='text-align:right;'>${staff[name]}</td>
+            </tr>`; 
+        });
     }
     document.getElementById('staffResult').innerHTML = html + "</table>";
 }
@@ -289,7 +331,7 @@ function renderStaff(staff) {
 function renderNeverPaired(staffDict, pairDict) {
     let activeStaff = Object.keys(staffDict).sort();
     if (activeStaff.length < 2) {
-        document.getElementById('neverPairedResult').innerHTML = "<p style='text-align:center;'>ข้อมูลไม่เพียงพอในการวิเคราะห์</p>";
+        document.getElementById('neverPairedResult').innerHTML = "<p style='text-align:center;color:var(--text-mute);'>ข้อมูลไม่เพียงพอในการวิเคราะห์ข้ามคู่</p>";
         return;
     }
 
@@ -324,6 +366,56 @@ function renderNeverPaired(staffDict, pairDict) {
         }
     });
     document.getElementById('neverPairedResult').innerHTML = html;
+}
+
+// ฟังก์ชันสำหรับเจาะประวัติคู่เวรรายบุคคล
+function showPartnerDetails(personName) {
+    let mode = document.getElementById('monthSelect').value;
+    let pairDict = storeData[mode].pairs;
+    let myPartners = [];
+
+    // วนลูปหาว่าในตารางการจับคู่ มีชื่อคนคนนี้อยู่ด้วยหรือไม่
+    Object.keys(pairDict).forEach(key => {
+        let splitNames = key.split(" + ");
+        if (splitNames.includes(personName)) {
+            // ถ้าใช่ ให้หาชื่อ "อีกคนนึง" ที่คู่ด้วย
+            let partner = splitNames[0] === personName ? splitNames[1] : splitNames[0];
+            myPartners.push({ name: partner, count: pairDict[key] });
+        }
+    });
+
+    // เรียงลำดับจากคู่บ่อยสุด
+    myPartners.sort((a, b) => b.count - a.count);
+
+    // รวบรวม HTML เพื่อโชว์ใน Modal
+    document.getElementById('modalTitle').innerHTML = `🌙 สถิติคู่เวรดึกของ: <br><span style="color:var(--accent); font-size:24px;"><b>${personName}</b></span>`;
+    
+    let html = "";
+    if (myPartners.length === 0) {
+        html = `<p style="text-align:center; color:var(--danger); margin-top:20px;">ไม่พบข้อมูลการวิเคราะห์คู่ให้บุคคลนี้</p>`;
+    } else {
+        html += `<p style="color:var(--text-mute); font-size:14px;">(ข้อมูลจากตัวเลือก: ${mode})</p>
+                 <table style="margin-top:10px;">
+                    <tr><th>ชื่อผู้ร่วมเวรดึก</th><th style="text-align:right;">อยู่ด้วยกัน (ครั้ง)</th></tr>`;
+        myPartners.forEach(p => {
+            html += `<tr>
+                <td>${p.name}</td>
+                <td style="text-align:right;"><span class="badge" style="background:var(--highlight);">${p.count}</span></td>
+            </tr>`;
+        });
+        html += `</table>`;
+    }
+    
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('partnerModal').style.display = "flex"; // เปิด Modal
+}
+
+// คลิกพื้นที่ว่างเพื่อปิด Pop-up
+function closeModal(event) {
+    // ปิดเฉพาะตอนที่คลิกที่ overlay สีเทาๆ (ไม่ให้ปิดตอนคลิกโดนเนื้อหากระจกด้านใน)
+    if(event.target.id === 'partnerModal') {
+        document.getElementById('partnerModal').style.display = 'none';
+    }
 }
 </script>
 
