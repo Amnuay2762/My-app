@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Favipiravir Susp. Calculator</title>
+    <title>Favipiravir Suspension Calculator</title>
     <style>
         :root {
             --primary: #0ea5e9;
             --primary-dark: #0284c7;
             --success: #10b981;
-            --danger: #dc2626;
-            --danger-bg: #fee2e2;
+            --danger: #ef4444;
             --warning: #f59e0b;
-            --bg: #f1f5f9;
+            --bg: #f0f4f8;
             --card: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -25,7 +24,7 @@
         .container { background-color: var(--card); border-radius: 16px; padding: 25px; width: 100%; max-width: 480px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
 
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
-        .header h1 { color: var(--primary-dark); margin: 0 0 5px 0; font-size: 22px; }
+        .header h1 { color: var(--primary-dark); margin: 0 0 5px 0; font-size: 22px; line-height: 1.3;}
         .header p { color: var(--text-muted); margin: 0; font-size: 14px; }
 
         .form-group { margin-bottom: 20px; }
@@ -34,13 +33,11 @@
         input[type="number"] { width: 100%; padding: 14px 15px; font-size: 18px; border: 2px solid #e2e8f0; border-radius: 8px; outline: none; transition: 0.2s; background: #f8fafc; }
         input[type="number"]:focus { border-color: var(--primary); background: #fff; }
 
-        /* Radio Buttons เช้า-เย็น */
-        .radio-group { display: flex; gap: 10px; }
-        .radio-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px 5px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; color: var(--text-muted); font-size: 15px; background: #f8fafc; }
+        /* Radio Buttons สำหรับเลือกมื้อแรก */
+        .radio-group { display: flex; gap: 10px; margin-bottom: 20px;}
+        .radio-card { flex: 1; border: 2px solid #e2e8f0; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; color: var(--text-muted); font-size: 16px; background: #f8fafc;}
         .radio-card input { display: none; }
-        
-        .radio-card.active-morning { border-color: #f59e0b; background-color: #fef3c7; color: #b45309; }
-        .radio-card.active-evening { border-color: #6366f1; background-color: #e0e7ff; color: #4338ca; }
+        .radio-card.active { border-color: var(--primary); background-color: #f0f9ff; color: var(--primary); }
 
         button.calc-btn { width: 100%; background-color: var(--primary); color: white; border: none; padding: 16px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(14, 165, 233, 0.2); }
         button.calc-btn:hover { background-color: var(--primary-dark); transform: translateY(-1px); }
@@ -57,17 +54,19 @@
         .dose-detail { display: flex; justify-content: space-between; align-items: center; }
         .dose-mg { color: var(--text-muted); font-size: 14px; }
         .dose-val { font-size: 26px; font-weight: 800; color: var(--primary-dark); text-align: right; }
-        .dose-unit { font-size: 16px; font-weight: bold; color: var(--text-muted); }
+        .dose-unit { font-size: 14px; font-weight: normal; color: var(--text-muted); }
 
-        /* Schedule Box */
-        .schedule-box { background-color: #f3f4f6; border: 1px solid #cbd5e1; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px; }
-        .schedule-title { font-size: 14px; color: #475569; font-weight: bold; margin-bottom: 5px; }
-        .schedule-text { font-size: 16px; font-weight: bold; color: var(--primary-dark); }
+        .total-box { background-color: #fff8f1; border: 1px solid #fde047; border-radius: 12px; padding: 15px; text-align: center; margin-top: 15px; }
+        .total-title { font-size: 14px; color: #92400e; font-weight: 600; margin-bottom: 5px; }
+        .total-num { font-size: 24px; font-weight: 800; color: #d97706; }
+        
+        /* กล่องจ่ายยาที่เน้นชัดเจน */
+        .dispense-box { margin-top: 20px; background-color: #fef2f2; border: 3px dashed var(--danger); border-radius: 12px; padding: 20px 15px; text-align: center; }
+        .dispense-title { font-size: 18px; font-weight: 900; color: #991b1b; margin-bottom: 10px; display: inline-block; background-color: #fee2e2; padding: 5px 15px; border-radius: 20px;}
+        .dispense-val { font-size: 20px; font-weight: bold; color: var(--danger); line-height: 1.6;}
 
-        /* Dispense Box */
-        .dispense-box { background-color: var(--danger-bg); border: 2px dashed var(--danger); border-radius: 12px; padding: 20px; text-align: center; margin-top: 15px; }
-        .dispense-title { font-size: 18px; color: #b91c1c; font-weight: 800; margin-bottom: 10px; }
-        .dispense-val { font-size: 22px; font-weight: 800; color: var(--danger); line-height: 1.4; }
+        /* กล่องวันที่ (ปรับปรุงให้จัดเป็น 2 บรรทัด) */
+        .schedule-box { background-color: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 15px; text-align: center; margin-top: 20px; font-size: 15px; color: #166534; line-height: 1.5;}
 
     </style>
 </head>
@@ -75,194 +74,193 @@
 
 <div class="container">
     <div class="header">
-        <h1>💧 Favi Susp. Calculator</h1>
-        <p>แอปคำนวณยาน้ำ Favipiravir (100 mg/ml) ในเด็ก</p>
+        <h1>💧 คำนวณ Favipiravir <br>(ยาน้ำเด็ก)</h1>
+        <p>Favipiravir Suspension 100 mg/ml</p>
     </div>
 
-    <!-- ส่วนกรอกข้อมูล -->
+    <!-- น้ำหนัก -->
     <div class="form-group">
-        <label>น้ำหนักเด็ก (kg) - ตัดที่ 50 กก.</label>
-        <input type="number" id="weight" step="0.1" min="1" placeholder="ระบุน้ำหนัก (กก.)" oninput="hideResult()">
+        <label>น้ำหนักตัวผู้ป่วย (kg)</label>
+        <input type="number" id="weight" step="0.1" min="1" placeholder="ระบุน้ำหนักเด็ก (ตัดที่ 50 กก.)">
     </div>
 
+    <!-- เลือกมื้อแรกคาบเกี่ยว -->
     <div class="form-group">
-        <label>มื้อแรกที่เริ่มทาน (กำหนดอัตโนมัติตามเวลา)</label>
-        <div class="radio-group">
-            <label class="radio-card" id="lbl-morning" onclick="setMeal('morning')">
-                <input type="radio" name="startMeal" value="morning" id="radio-morning">
-                <span>☀️ เริ่มกินมื้อเช้า</span>
+        <label>เลือกมื้อแรกที่เริ่มทาน</label>
+        <div class="radio-group" id="mealGroup">
+            <label class="radio-card" id="lbl-morning" onclick="setStartMeal('morning')">
+                <input type="radio" name="startMeal" value="morning">
+                <span>☀️ เริ่มมื้อเช้า</span>
             </label>
-            <label class="radio-card" id="lbl-evening" onclick="setMeal('evening')">
-                <input type="radio" name="startMeal" value="evening" id="radio-evening">
-                <span>🌙 เริ่มกินมื้อเย็น</span>
+            <label class="radio-card" id="lbl-evening" onclick="setStartMeal('evening')">
+                <input type="radio" name="startMeal" value="evening">
+                <span>🌙 เริ่มมื้อเย็น</span>
             </label>
         </div>
     </div>
 
-    <button class="calc-btn" onclick="calculateDose()">คำนวณยาน้ำ</button>
+    <button class="calc-btn" onclick="calculateDose()">คำนวณขนาดยา</button>
 
     <!-- ส่วนแสดงผลลัพธ์ -->
     <div class="result-box" id="resultArea">
-        
-        <div class="schedule-box">
-            <div class="schedule-title">📅 กำหนดการทานยา (รวม 5 วัน)</div>
-            <div class="schedule-text" id="valSchedule">-</div>
+
+        <!-- กล่องตารางการทานยา -->
+        <div class="schedule-box" id="scheduleArea">
+            <div id="valDateSchedule">-</div>
         </div>
 
+        <!-- กล่องจ่ายยา (เด่นสุด) -->
+        <div class="dispense-box">
+            <div class="dispense-title">📦 จ่ายยาขนาด</div>
+            <div class="dispense-val" id="valBottles">-</div>
+        </div>
+
+        <div style="margin: 25px 0;"></div>
+
         <div class="dosage-card" id="cardDay1">
-            <div class="dose-title">💊 วันที่ 1 (Loading Dose)</div>
+            <div class="dose-title">📅 วันที่ 1 (Loading Dose)</div>
             <div class="dose-detail">
-                <div class="dose-mg"><span id="valMgD1">-</span> mg <br>รับประทาน <b>ทุก 12 ชม.</b></div>
+                <div class="dose-mg"><b>35 mg/kg/dose</b><br>รับประทาน <b>ทุก 12 ชม.</b></div>
                 <div class="dose-val"><span id="valUnitD1">-</span> <span class="dose-unit">ml</span><br><span style="font-size:12px; font-weight:normal; color:#64748b;">(ปริมาตรต่อมื้อ)</span></div>
             </div>
         </div>
 
         <div class="dosage-card day2-5" id="cardDay2">
-            <div class="dose-title">💊 วันที่ 2 - 5 (Maintenance)</div>
+            <div class="dose-title">📅 วันที่ 2 - 5 (Maintenance)</div>
             <div class="dose-detail">
-                <div class="dose-mg"><span id="valMgD2">-</span> mg <br>รับประทาน <b>ทุก 12 ชม.</b></div>
+                <div class="dose-mg"><b>15 mg/kg/dose</b><br>รับประทาน <b>ทุก 12 ชม.</b></div>
                 <div class="dose-val"><span id="valUnitD2">-</span> <span class="dose-unit">ml</span><br><span style="font-size:12px; font-weight:normal; color:#64748b;">(ปริมาตรต่อมื้อ)</span></div>
             </div>
         </div>
         
-        <!-- กล่องจ่ายยา เน้นเด่นๆ -->
-        <div class="dispense-box">
-            <div class="dispense-title">📦 จ่ายยาขนาด</div>
-            <div class="dispense-val" id="valBottles">-</div>
-            <div style="font-size:14px; margin-top: 8px; color: #7f1d1d; font-weight:normal;">ปริมาตรรวม: <span id="valTotalVolume">-</span> ml</div>
+        <div class="total-box">
+            <div class="total-title">ปริมาตรรวมที่ใช้จริง (10 มื้อ)</div>
+            <div class="total-num" id="valTotal">-</div>
         </div>
+
     </div>
 </div>
 
 <script>
-    // ตั้งค่าเริ่มต้น: ถ้าเวลาเกิน 14.30 ให้เซ็ตเป็น 'เย็น' ถ้าไม่ถึงให้เซ็ตเป็น 'เช้า'
+    let currentStartMeal = 'morning';
+
+    // ตั้งค่ามื้อแรกอัตโนมัติตอนเปิดแอป
     window.onload = function() {
         const now = new Date();
         const hour = now.getHours();
         const minute = now.getMinutes();
 
-        // 14.30 น.
+        // หลัง 14.30 ให้เป็นมื้อเย็น
         if (hour > 14 || (hour === 14 && minute >= 30)) {
-            setMeal('evening');
+            setStartMeal('evening');
         } else {
-            setMeal('morning');
+            setStartMeal('morning');
         }
     };
 
-    // ฟังก์ชันซ่อนผลลัพธ์ถ้ามีการเปลี่ยนตัวเลขใหม่
-    function hideResult() {
-        document.getElementById('resultArea').style.display = 'none';
-    }
-
-    function setMeal(mealType) {
-        hideResult();
-        const lblMorning = document.getElementById('lbl-morning');
-        const lblEvening = document.getElementById('lbl-evening');
+    function setStartMeal(meal) {
+        currentStartMeal = meal;
+        document.getElementById('lbl-morning').classList.remove('active');
+        document.getElementById('lbl-evening').classList.remove('active');
+        document.getElementById(`lbl-${meal}`).classList.add('active');
         
-        if (mealType === 'morning') {
-            document.getElementById('radio-morning').checked = true;
-            lblMorning.classList.add('active-morning');
-            lblEvening.classList.remove('active-evening');
-        } else {
-            document.getElementById('radio-evening').checked = true;
-            lblEvening.classList.add('active-evening');
-            lblMorning.classList.remove('active-morning');
+        // อัปเดตวันที่ถ้าระบบเปิดผลลัพธ์อยู่
+        if (document.getElementById('resultArea').style.display === 'block') {
+            updateSchedule();
         }
     }
 
-    // ฟังก์ชัน Format วันที่ พ.ศ. สั้นๆ (ดด/ดด/ปป)
-    function getThaiDateShort(offsetDays) {
-        let d = new Date();
-        d.setDate(d.getDate() + offsetDays); 
-        let dd = String(d.getDate()).padStart(2, '0');
-        let mm = String(d.getMonth() + 1).padStart(2, '0');
-        let yy = String((d.getFullYear() + 543) % 100).padStart(2, '0'); 
-        return `${dd}/${mm}/${yy}`;
+    // ฟังก์ชันจัด Format วันที่ (D/M/YY) ไม่เติม 0 ข้างหน้าเพื่อลดความยาวถ้าวันเป็นตัวเดียว
+    function formatDate(dateObj) {
+        const d = dateObj.getDate();
+        const m = (dateObj.getMonth() + 1);
+        const yearTh = dateObj.getFullYear() + 543;
+        const shortYear = yearTh.toString().slice(-2);
+        return `${d}/${m}/${shortYear}`;
+    }
+
+    function updateSchedule() {
+        const today = new Date();
+        const startDateStr = formatDate(today);
+        let endDate = new Date(today);
+        let startMealTh = "";
+        let endMealTh = "";
+
+        if (currentStartMeal === 'morning') {
+            // เช้าวันที่ 1 -> จบที่ เย็นวันที่ 5 (นับถัดไป 4 วัน)
+            endDate.setDate(today.getDate() + 4);
+            startMealTh = "เช้า";
+            endMealTh = "เย็น";
+        } else {
+            // เย็นวันที่ 1 -> จบที่ เช้าวันที่ 6 (นับถัดไป 5 วัน)
+            endDate.setDate(today.getDate() + 5);
+            startMealTh = "เย็น";
+            endMealTh = "เช้า";
+        }
+
+        const endDateStr = formatDate(endDate);
+        
+        // สร้างข้อความ HTML แบบ 2 บรรทัดเป๊ะๆ
+        let resultHtml = `
+            <div style="color: var(--primary-dark); font-size: 18px; font-weight: bold; margin-bottom: 2px;">ทานครบ 10 มื้อ</div>
+            <div style="font-size: 15px;">มื้อแรก <b>${startMealTh}</b> วันที่ ${startDateStr} ถึงมื้อ <b>${endMealTh}</b> วันที่ ${endDateStr}</div>
+        `;
+
+        document.getElementById('valDateSchedule').innerHTML = resultHtml;
     }
 
     function calculateDose() {
         const weightInput = document.getElementById('weight').value;
         if (!weightInput || weightInput <= 0) {
-            alert("กรุณาระบุน้ำหนักเด็กให้ถูกต้อง");
+            alert("กรุณาระบุน้ำหนักให้ถูกต้องครับ");
             return;
         }
 
-        const wt = parseFloat(weightInput);
-
-        // ==========================================
-        // 1. ตรวจสอบน้ำหนัก (Max 50 kg)
-        // ==========================================
-        let calcWt = wt;
+        let wt = parseFloat(weightInput);
+        
         if (wt > 50) {
-            alert("⚠️ ยาน้ำในตารางรองรับน้ำหนักสูงสุดแค่ 50 kg หากมากกว่านี้แนะนำให้จ่ายเป็นยาเม็ด หรือคำนวณแบบผู้ใหญ่นะครับ");
-            calcWt = 50; 
+            alert("ยา Suspension ในตารางรองรับน้ำหนักสูงสุดที่ 50 kg หากน้ำหนักมากกว่านี้แนะนำให้ใช้ยาเม็ดครับ (ระบบจะรันที่ 50kg ให้ก่อน)");
+            wt = 50; 
             document.getElementById('weight').value = 50;
         }
 
-        // ==========================================
-        // 2. คำนวณช่วงเวลาการรับประทาน (Schedule) 
-        // ==========================================
-        const isMorning = document.getElementById('radio-morning').checked;
-        let scheduleText = "";
+        // สูตรคำนวณโดส ปัดทศนิยม 1 ตำแหน่ง
+        let rawDay1 = (wt * 35) / 100;
+        let unitDay1 = Math.round(rawDay1 * 10) / 10;
         
-        if (isMorning) {
-            // เริ่มเช้า -> จบ เย็น วันที่ 5
-            scheduleText = `มื้อแรก <span style='color:#d97706'>เช้า</span> วันที่ ${getThaiDateShort(0)} <br>ถึงมื้อ <span style='color:#4338ca'>เย็น</span> วันที่ ${getThaiDateShort(4)}`;
-        } else {
-            // เริ่มเย็น -> จบ เช้า วันที่ 6
-            scheduleText = `มื้อแรก <span style='color:#4338ca'>เย็น</span> วันที่ ${getThaiDateShort(0)} <br>ถึงมื้อ <span style='color:#d97706'>เช้า</span> วันที่ ${getThaiDateShort(5)}`;
-        }
+        let rawDay2 = (wt * 15) / 100;
+        let unitDay2 = Math.round(rawDay2 * 10) / 10;
 
-        // ==========================================
-        // 3. คำนวณขนาดยา (Suspension 100mg/ml)
-        // ==========================================
-        let mgDay1 = Math.round(calcWt * 35);
-        let mgDay2 = Math.round(calcWt * 15);
-
-        // คำนวณ ml และ ปัดเศษ 1 ตำแหน่ง (เช่น 1.05 -> 1.1)
-        let unitDay1 = Math.round((mgDay1 / 100) * 10) / 10;
-        let unitDay2 = Math.round((mgDay2 / 100) * 10) / 10;
-
-        // ปริมาตรรวม 5 วัน
         let totalVolume = (unitDay1 * 2) + (unitDay2 * 8);
-        totalVolume = Math.round(totalVolume * 10) / 10;
+        totalVolume = Math.round(totalVolume * 10) / 10; 
 
-        // ==========================================
-        // 4. การจัดขวดสั่งจ่ายยา (ตาม Cut-off น้ำหนัก)
-        // ==========================================
+        // ตรรกะสูตรจัดขวดยา
         let b30 = 0;
         let b60 = 0;
         
-        if (calcWt <= 15) {
+        if (wt <= 15) {
             b30 = 1;
-        } else if (calcWt <= 30) {
+        } else if (wt <= 30) {
             b60 = 1;
-        } else if (calcWt <= 46) {
-            b30 = 1; 
+        } else if (wt <= 46) {
+            b30 = 1;
             b60 = 1;
-        } else if (calcWt <= 50) {
+        } else if (wt <= 50) {
             b60 = 2;
         }
 
         let bTextArr = [];
-        if (b30 > 0) bTextArr.push(`30 ml จำนวน ${b30} ขวด`);
-        if (b60 > 0) bTextArr.push(`60 ml จำนวน ${b60} ขวด`);
-        let bottleText = bTextArr.join('<br> + <br>');
+        if (b30 > 0) bTextArr.push(`<b>30 ml</b> จำนวน ${b30} ขวด`);
+        if (b60 > 0) bTextArr.push(`<b>60 ml</b> จำนวน ${b60} ขวด`);
+        let bottleText = bTextArr.join(' <br>+<br> ');
 
-        // ==========================================
-        // 5. นำขึ้นแสดงผลหน้าจอ
-        // ==========================================
-        document.getElementById('valSchedule').innerHTML = scheduleText;
-
-        document.getElementById('valMgD1').innerText = mgDay1;
-        document.getElementById('valUnitD1').innerText = unitDay1.toFixed(1);
-
-        document.getElementById('valMgD2').innerText = mgDay2;
+        // แสดงผล
+        document.getElementById('valUnitD1').innerText = unitDay1.toFixed(1); 
         document.getElementById('valUnitD2').innerText = unitDay2.toFixed(1);
-
-        document.getElementById('valTotalVolume').innerText = totalVolume.toFixed(1);
+        document.getElementById('valTotal').innerText = totalVolume.toFixed(1) + " ml";
         document.getElementById('valBottles').innerHTML = bottleText;
 
+        updateSchedule(); 
         document.getElementById('resultArea').style.display = 'block';
     }
 </script>
