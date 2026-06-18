@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IV Drug Concentration Calculator</title>
+    <style>
+        :root {
+            --primary: #0d9488;     /* Teal */
+            --primary-dark: #0f766e;
+            --secondary: #e0f2fe;   /* Light blue */
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --highlight: #fef08a;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            padding: 15px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            align-items: flex-start;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-top: 2vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            color: var(--primary-dark);
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+
+        .header p { color: var(--text-muted); margin: 0; font-size: 14px; }
+
+        .form-group { margin-bottom: 20px; }
+        
+        label {
+            display: block; font-weight: bold; margin-bottom: 8px; color: #334155; font-size: 15px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="number"] {
+            flex: 2;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.2s;
+            background: #f8fafc;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+        }
+
+        select {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            color: var(--primary-dark);
+            cursor: pointer;
+            outline: none;
+        }
+
+        select:focus { border-color: var(--primary); }
+
+        .volume-wrapper {
+            position: relative;
+        }
+        
+        .volume-wrapper input { width: 100%; }
+        
+        .volume-unit {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-weight: bold;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .btn-calc {
+            width: 100%; background-color: var(--primary); color: white; border: none;
+            padding: 18px; font-size: 18px; font-weight: bold; border-radius: 10px;
+            cursor: pointer; transition: 0.2s; margin-top: 10px; box-shadow: 0 4px 6px rgba(13, 148, 136, 0.25);
+        }
+
+        .btn-calc:hover { background-color: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(13, 148, 136, 0.3); }
+        .btn-calc:active { transform: translateY(0); }
+
+        /* Result Area */
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-result {
+            background-color: var(--secondary);
+            border: 2px solid #bae6fd;
+            border-radius: 15px;
+            padding: 25px 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .result-label { color: #0369a1; font-weight: bold; font-size: 14px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;}
+        .result-value { color: #0284c7; font-size: 38px; font-weight: 900; line-height: 1.1; }
+        .result-unit { font-size: 18px; font-weight: 600; color: #0369a1; }
+
+        .conversion-box {
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; display: grid; gap: 10px;
+        }
+
+        .conv-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+        .conv-item:last-child { border-bottom: none; }
+        .conv-label { color: var(--text-muted); font-size: 14px; }
+        .conv-val { font-weight: 800; color: var(--text-main); font-size: 16px; background: #f1f5f9; padding: 4px 10px; border-radius: 6px;}
+
+        /* Quick fill buttons */
+        .quick-btn-group { display: flex; gap: 8px; margin-top: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .q-btn { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+        .q-btn:hover { background: #e2e8f0; color: var(--text-main); }
+
+        .error-msg { color: var(--danger); font-size: 14px; margin-top: 5px; display: none; font-weight: 600;}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>💉 IV Concentration Calc</h1>
+        <p>คำนวณความเข้มข้นของยาเตรียม/ยาผสม</p>
+    </div>
+
+    <!-- 1. ช่องใส่ปริมาณยา -->
+    <div class="form-group">
+        <label>1. ปริมาณตัวยาสำคัญ (Drug Amount)</label>
+        <div class="input-row">
+            <input type="number" id="drugAmount" step="any" min="0" placeholder="ex. 4">
+            <select id="drugUnit">
+                <option value="mg">mg</option>
+                <option value="g">gram</option>
+                <option value="mcg">mcg</option>
+                <option value="iu">Units (IU)</option>
+            </select>
+        </div>
+        <!-- ปุ่มช่วยกดไวๆ -->
+        <div class="quick-btn-group">
+            <button class="q-btn" onclick="quickFill('drugAmount', 1)">1</button>
+            <button class="q-btn" onclick="quickFill('drugAmount', 2)">2</button>
+            <button class="q-btn" onclick="quickFill('drugAmount', 4)">4</button>
+            <button class="q-btn" onclick="quickFill('drugAmount', 10)">10</button>
+            <button class="q-btn" onclick="quickFill('drugAmount', 1000)">1000</button>
+        </div>
+    </div>
+
+    <!-- 2. ช่องใส่ปริมาตรสารละลาย -->
+    <div class="form-group">
+        <label>2. ปริมาตรรวม (Total Volume)</label>
+        <div class="volume-wrapper">
+            <input type="number" id="totalVolume" step="any" min="0" placeholder="ปริมาตรหลังผสม (ex. 250)">
+            <span class="volume-unit">ml</span>
+        </div>
+        <div class="quick-btn-group">
+            <button class="q-btn" onclick="quickFill('totalVolume', 50)">50 ml</button>
+            <button class="q-btn" onclick="quickFill('totalVolume', 100)">100 ml</button>
+            <button class="q-btn" onclick="quickFill('totalVolume', 250)">250 ml</button>
+            <button class="q-btn" onclick="quickFill('totalVolume', 500)">500 ml</button>
+            <button class="q-btn" onclick="quickFill('totalVolume', 1000)">1000 ml</button>
+        </div>
+        <div id="errorVol" class="error-msg">⚠️ กรุณาใส่ปริมาตรให้ถูกต้อง (มากกว่า 0)</div>
+    </div>
+
+    <button class="btn-calc" onclick="calculateConcentration()">คำนวณความเข้มข้น</button>
+
+    <!-- ส่วนแสดงผล -->
+    <div class="result-container" id="resultArea">
+        <div class="main-result">
+            <div class="result-label">ความเข้มข้นสุดท้าย (Final Conc.)</div>
+            <div class="result-value">
+                <span id="resPrimaryVal">0</span>
+                <span class="result-unit" id="resPrimaryUnit">mg/ml</span>
+            </div>
+        </div>
+
+        <!-- กล่องแปลงหน่วยอัตโนมัติ -->
+        <div class="conversion-box" id="conversionBox">
+            <div style="font-size: 12px; font-weight: bold; color: var(--primary); text-transform: uppercase;">เทียบเท่าการแปลงหน่วย (Equivalents)</div>
+            
+            <div class="conv-item" id="rowMg">
+                <span class="conv-label">คิดเป็น มิลลิกรัม</span>
+                <span class="conv-val"><span id="convMg">0</span> mg/ml</span>
+            </div>
+            
+            <div class="conv-item" id="rowMcg">
+                <span class="conv-label">คิดเป็น ไมโครกรัม</span>
+                <span class="conv-val"><span id="convMcg">0</span> mcg/ml</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ปุ่มช่วยกรอกตัวเลขด่วน
+    function quickFill(elementId, value) {
+        document.getElementById(elementId).value = value;
+    }
+
+    // ฟังก์ชันปัดเศษทศนิยม ป้องกันตัวเลขยาวเฟื้อย แต่คงความแม่นยำทางยา
+    // ถ้าผลลัพธ์ลงตัว จะไม่โชว์จุดทศนิยม
+    function formatNumber(num) {
+        if (num === 0) return 0;
+        // ปรับทศนิยมสูงสุด 4 ตำแหน่งสำหรับยา (เช่น 0.016)
+        let formatted = Number(Math.round(num + 'e4') + 'e-4');
+        return formatted;
+    }
+
+    function calculateConcentration() {
+        const amountInput = document.getElementById('drugAmount').value;
+        const volumeInput = document.getElementById('totalVolume').value;
+        const unit = document.getElementById('drugUnit').value;
+        const errorMsg = document.getElementById('errorVol');
+
+        // รีเซ็ตการแจ้งเตือน
+        errorMsg.style.display = 'none';
+
+        // ตรวจสอบค่าว่าง
+        if (!amountInput || !volumeInput) {
+            alert("กรุณากรอกข้อมูลให้ครบทั้งปริมาณยาและปริมาตรรวมครับ");
+            return;
+        }
+
+        const amount = parseFloat(amountInput);
+        const volume = parseFloat(volumeInput);
+
+        if (volume <= 0) {
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        // คำนวณความเข้มข้นหลักตามหน่วยที่ User เลือก
+        let primaryConc = amount / volume;
+        document.getElementById('resPrimaryVal').innerText = formatNumber(primaryConc);
+        document.getElementById('resPrimaryUnit').innerText = `${unit}/ml`;
+
+        // ==========================================
+        // ระบบแปลงหน่วยอัตโนมัติ (Auto-conversions)
+        // ==========================================
+        const rowMg = document.getElementById('rowMg');
+        const rowMcg = document.getElementById('rowMcg');
+        const conversionBox = document.getElementById('conversionBox');
+
+        let valMg = 0;
+        let valMcg = 0;
+        let showConversion = true;
+
+        if (unit === 'mg') {
+            valMg = primaryConc;
+            valMcg = primaryConc * 1000;
+            rowMg.style.display = 'none'; // ซ่อนถ้าหน่วยตรงกันอยู่แล้ว
+            rowMcg.style.display = 'flex';
+        } 
+        else if (unit === 'g') {
+            valMg = primaryConc * 1000;
+            valMcg = primaryConc * 1000000;
+            rowMg.style.display = 'flex';
+            rowMcg.style.display = 'flex';
+        } 
+        else if (unit === 'mcg') {
+            valMg = primaryConc / 1000;
+            valMcg = primaryConc;
+            rowMg.style.display = 'flex';
+            rowMcg.style.display = 'none';
+        } 
+        else if (unit === 'iu') {
+            // Units (IU) ไม่สามารถแปลงเป็น mg/mcg ได้ตรงๆ (คนละระบบมาตรวัด)
+            showConversion = false;
+        }
+
+        // ถ้าต้องโชว์การแปลงหน่วย ให้ใส่ค่าและโชว์กล่อง
+        if (showConversion) {
+            conversionBox.style.display = 'grid';
+            document.getElementById('convMg').innerText = formatNumber(valMg);
+            document.getElementById('convMcg').innerText = formatNumber(valMcg);
+        } else {
+            conversionBox.style.display = 'none';
+        }
+
+        // แสดงกล่องผลลัพธ์พร้อมลูกเล่น Animation
+        document.getElementById('resultArea').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
