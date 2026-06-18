@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ratio Calculator - Medical Clear</title>
+    <style>
+        :root {
+            /* สีสำหรับ โหมดหา Volume (สีฟ้า Medical Health) */
+            --primary: #0ea5e9;       
+            --primary-dark: #0284c7;  
+            --primary-light: #e0f2fe; 
+            
+            /* สีสำหรับ โหมดหา Dose (สีเขียว Mint) */
+            --secondary: #10b981;     
+            --secondary-dark: #059669;
+            --secondary-light: #d1fae5;
+            
+            --bg-color: #f1f5f9;      /* สีจอด้านหลังสุด เทาอมฟ้าสว่างๆ */
+            --card-bg: #ffffff;
+            --text-main: #0f172a;     /* ดำเข้ม อ่านง่ายสุด */
+            --text-muted: #64748b;    
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            padding: 15px; margin: 0; display: flex; justify-content: center; min-height: 100vh; align-items: flex-start;
+        }
+
+        .container {
+            background-color: var(--card-bg); border-radius: 20px; padding: 30px;
+            width: 100%; max-width: 480px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); margin-top: 20px;
+        }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { color: var(--primary-dark); margin: 0 0 5px 0; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .container.mode-dose .header h1 { color: var(--secondary-dark); }
+        .header p { color: var(--text-muted); margin: 0; font-size: 14px; font-weight: 500; }
+
+        /* Modern Tabs */
+        .tabs { display: flex; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 6px; margin-bottom: 25px; position: relative; }
+        .tab { flex: 1; text-align: center; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; color: var(--text-muted); transition: all 0.3s ease; z-index: 1;}
+        .tab.active { color: white; }
+        
+        .tab-slider { position: absolute; top: 6px; left: 6px; height: calc(100% - 12px); width: calc(50% - 6px); background: var(--primary); border-radius: 8px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 0; box-shadow: 0 4px 6px rgba(14, 165, 233, 0.3);}
+        .container.mode-dose .tab-slider { transform: translateX(100%); background: var(--secondary); box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);}
+
+        /* Content Boxes */
+        .box { border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; background: #ffffff; transition: 0.2s;}
+        .box:focus-within { border-color: var(--primary-light); box-shadow: 0 0 0 4px var(--primary-light);}
+        .container.mode-dose .box:focus-within { border-color: var(--secondary-light); box-shadow: 0 0 0 4px var(--secondary-light);}
+
+        .box-title { font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
+        .container.mode-dose #targetTitle { color: var(--secondary-dark); }
+
+        .input-group { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .input-group:last-child { margin-bottom: 0; }
+        .input-group label { width: 50px; font-size: 15px; color: var(--text-muted); font-weight: 700;}
+
+        /* Bright Inputs */
+        input[type="number"] {
+            flex: 1; min-width: 0; background: #f8fafc; border: 2px solid var(--border-color);
+            color: var(--text-main); padding: 14px 15px; border-radius: 10px; font-size: 18px; font-weight: bold; outline: none; transition: 0.2s;
+        }
+        input[type="number"]::placeholder { color: #cbd5e1; font-weight: normal;}
+        
+        input[type="number"]:focus { border-color: var(--primary); background: #ffffff;}
+        .container.mode-dose input[type="number"]:focus { border-color: var(--secondary); }
+
+        /* Custom Select */
+        select {
+            padding: 14px 10px; background: #ffffff; border: 2px solid var(--border-color); color: var(--text-main);
+            border-radius: 10px; font-size: 15px; font-weight: bold; outline: none; cursor: pointer; transition: 0.2s;
+        }
+        select:focus { border-color: var(--primary); }
+        .container.mode-dose select:focus { border-color: var(--secondary); }
+
+        .unit-display {
+            width: 70px; text-align: center; background: var(--primary-light); padding: 14px 10px; border-radius: 10px; font-size: 15px; font-weight: 800; border: 2px solid var(--primary-light); color: var(--primary-dark); transition: 0.3s;
+        }
+        .container.mode-dose .unit-display { background: var(--secondary-light); border-color: var(--secondary-light); color: var(--secondary-dark); }
+
+        /* Big Action Button */
+        .btn-calc {
+            width: 100%; background: var(--primary); color: white; border: none;
+            padding: 18px; font-size: 18px; font-weight: 800; border-radius: 12px; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3); margin-top: 5px;
+        }
+        .btn-calc:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);}
+        .btn-calc:active { transform: translateY(0); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);}
+        
+        .container.mode-dose .btn-calc { background: var(--secondary); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);}
+        .container.mode-dose .btn-calc:hover { background: var(--secondary-dark); }
+
+        /* Bright Result Container */
+        .result-container {
+            display: none; margin-top: 25px; text-align: center;
+            background: #ffffff; border: 3px solid var(--primary); border-radius: 16px; padding: 25px 20px;
+            animation: fadeIn 0.4s; position: relative;
+        }
+        .container.mode-dose .result-container { border-color: var(--secondary); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .result-title { font-size: 16px; color: var(--text-muted); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;}
+        .result-val { font-size: 52px; font-weight: 900; color: var(--primary-dark); line-height: 1; margin: 10px 0;}
+        .container.mode-dose .result-val { color: var(--secondary-dark); }
+
+        .result-sub { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .container.mode-dose .result-sub { color: var(--secondary); }
+        
+        .formula-box {
+            background: #f8fafc; border: 1px dashed var(--border-color); border-radius: 10px; padding: 12px; margin-top: 20px;
+            font-size: 14px; color: var(--text-muted); font-weight: 500;
+        }
+        .formula-box span { color: var(--text-main); font-weight: 800; }
+
+        /* Decorative Badge */
+        .ready-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 4px 15px; border-radius: 20px; font-weight: bold; font-size: 13px;
+        }
+        .container.mode-dose .ready-badge { background: var(--secondary); }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="appContainer">
+    <div class="header">
+        <h1>💉 Dose Calculator</h1>
+        <p>แอปเทียบขนาดยา (บัญญัติไตรยางศ์)</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <div class="tab active" id="tab1" onclick="switchMode('needVol')">หา ปริมาตร (ml)</div>
+        <div class="tab" id="tab2" onclick="switchMode('needDose')">หา ขนาดยา (Dose)</div>
+        <div class="tab-slider"></div>
+    </div>
+
+    <!-- Box 1 -->
+    <div class="box">
+        <div class="box-title">📦 1. ยาอ้างอิงที่มี (Stock/Vial)</div>
+        <div class="input-group">
+            <label>มียา</label>
+            <input type="number" id="haveDose" step="any" min="0" placeholder="ระบุตัวเลข">
+            <select id="unitDose" onchange="syncUnits()">
+                <option value="mg">mg</option>
+                <option value="mcg">mcg</option>
+                <option value="g">g</option>
+                <option value="Unit">Unit</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>ในน้ำ</label>
+            <input type="number" id="haveVol" step="any" min="0" placeholder="ระบุตัวเลข">
+            <select id="unitVol" onchange="syncUnits()">
+                <option value="ml">ml</option>
+                <option value="L">L</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Box 2 -->
+    <div class="box" id="targetBox">
+        <div class="box-title" id="targetTitle">🎯 2. ขนาดยาที่แพทย์สั่ง (Order)</div>
+        <div class="input-group">
+            <label id="targetLbl">สั่งมา</label>
+            <input type="number" id="targetInput" step="any" min="0" placeholder="ระบุตัวเลข">
+            <div id="targetUnitDisplay" class="unit-display">mg</div>
+        </div>
+    </div>
+
+    <button class="btn-calc" onclick="calculateRatio()">คำนวณเลย</button>
+
+    <!-- Result Area -->
+    <div class="result-container" id="resultArea">
+        <div class="ready-badge">ผลลัพธ์การคำนวณ</div>
+        <div class="result-title" id="resTitle">ต้องดูดยามาเตรียมทั้งหมด</div>
+        <div class="result-val" id="resValue">0.0</div>
+        <div class="result-sub" id="resUnit">ml</div>
+        
+        <div class="formula-box" id="formulaShow">
+            วิธีคิด: ...
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'needVol';
+
+    function switchMode(mode) {
+        currentMode = mode;
+        const container = document.getElementById('appContainer');
+        const t1 = document.getElementById('tab1');
+        const t2 = document.getElementById('tab2');
+        const title = document.getElementById('targetTitle');
+        const lbl = document.getElementById('targetLbl');
+
+        if (mode === 'needVol') {
+            container.classList.remove('mode-dose');
+            t1.classList.add('active'); t2.classList.remove('active');
+            title.innerHTML = '🎯 2. ขนาดยาที่แพทย์สั่ง';
+            lbl.innerText = 'สั่งมา';
+        } else {
+            container.classList.add('mode-dose');
+            t2.classList.add('active'); t1.classList.remove('active');
+            title.innerHTML = '💉 2. ปริมาตรยาในไซริงค์';
+            lbl.innerText = 'ดูดมา';
+        }
+        
+        syncUnits();
+        document.getElementById('resultArea').style.display = 'none';
+        document.getElementById('targetInput').value = "";
+    }
+
+    function syncUnits() {
+        const dUnit = document.getElementById('unitDose').value;
+        const vUnit = document.getElementById('unitVol').value;
+        document.getElementById('targetUnitDisplay').innerText = currentMode === 'needVol' ? dUnit : vUnit;
+    }
+
+    function calculateRatio() {
+        const hD = parseFloat(document.getElementById('haveDose').value);
+        const hV = parseFloat(document.getElementById('haveVol').value);
+        const tV = parseFloat(document.getElementById('targetInput').value);
+        const dU = document.getElementById('unitDose').value;
+        const vU = document.getElementById('unitVol').value;
+
+        if (!hD || !hV || isNaN(tV)) { alert("กรุณาระบุตัวเลขให้ครบทุกช่องก่อนคำนวณครับ"); return; }
+        if (hD <= 0 || hV <= 0) { alert("ข้อมูลยาตั้งต้นต้องมากกว่า 0"); return; }
+
+        let res = 0, formula = "";
+        
+        if (currentMode === 'needVol') {
+            res = (tV * hV) / hD;
+            document.getElementById('resTitle').innerText = 'ต้องดูดยาออกมาปริมาตร (Volume)';
+            document.getElementById('resUnit').innerText = vU;
+            formula = `(${tV} ${dU} × ${hV} ${vU}) ÷ ${hD} ${dU} = <span>${formatNum(res)} ${vU}</span>`;
+        } else {
+            res = (tV * hD) / hV;
+            document.getElementById('resTitle').innerText = 'คนไข้จะได้รับขนาดยา (Dose)';
+            document.getElementById('resUnit').innerText = dU;
+            formula = `(${tV} ${vU} × ${hD} ${dU}) ÷ ${hV} ${vU} = <span>${formatNum(res)} ${dU}</span>`;
+        }
+
+        document.getElementById('resValue').innerText = formatNum(res);
+        document.getElementById('formulaShow').innerHTML = `วิธีคิด: ${formula}`;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    function formatNum(num) {
+        return Math.round(num * 1000) / 1000;
+    }
+</script>
+
+</body>
+</html>
