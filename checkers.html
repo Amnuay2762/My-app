@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔴 หมากฮอส</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);
+    min-height:100vh; display:flex; justify-content:center; align-items:center;
+    padding:20px; color:#fff;
+  }
+  .container {
+    background:rgba(255,255,255,0.08); backdrop-filter:blur(10px);
+    border-radius:20px; padding:25px; box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    border:1px solid rgba(255,255,255,0.15);
+  }
+  h1 { text-align:center; margin-bottom:15px; font-size:1.8em; text-shadow:0 2px 10px rgba(0,0,0,0.4); }
+  .setup { display:flex; gap:10px; justify-content:center; margin-bottom:15px; flex-wrap:wrap; align-items:center; }
+  select, button {
+    background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
+    color:#fff; padding:8px 14px; border-radius:10px; font-size:0.95em; cursor:pointer;
+  }
+  select option { color:#000; }
+  button.primary { background:linear-gradient(135deg,#f093fb,#f5576c); border:none; font-weight:bold; }
+  button:hover { transform:translateY(-2px); }
+  button { transition:transform 0.1s; }
+  .status {
+    text-align:center; font-size:1.1em; font-weight:bold; padding:8px 16px;
+    background:rgba(0,0,0,0.25); border-radius:10px; margin-bottom:15px;
+  }
+  .score { display:flex; justify-content:space-around; margin-bottom:12px; font-weight:bold; }
+  .board-wrap { display:flex; justify-content:center; }
+  .board {
+    position:relative;
+    display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
+    width:min(85vw,520px); height:min(85vw,520px);
+    border:6px solid #3a2718; border-radius:8px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.6); overflow:hidden;
+  }
+  .square { display:flex; justify-content:center; align-items:center; position:relative; }
+  .light { background:#f0d9b5; }
+  .dark { background:#b58863; cursor:pointer; }
+  .piece {
+    width:74%; height:74%; border-radius:50%; position:relative;
+    transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    z-index:2;
+  }
+  .piece.red {
+    background:radial-gradient(circle at 35% 30%, #ff7b7b, #d32f2f 60%, #8e0000);
+    box-shadow:0 4px 8px rgba(0,0,0,0.5), inset 0 -4px 8px rgba(0,0,0,0.4), inset 0 4px 6px rgba(255,255,255,0.4);
+  }
+  .piece.blue {
+    background:radial-gradient(circle at 35% 30%, #7eb6ff, #1976d2 60%, #0d3c78);
+    box-shadow:0 4px 8px rgba(0,0,0,0.5), inset 0 -4px 8px rgba(0,0,0,0.4), inset 0 4px 6px rgba(255,255,255,0.4);
+  }
+  .piece.king::after {
+    content:'♛'; position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
+    font-size:1.6em; color:#ffd700; text-shadow:0 0 8px #ffae00, 0 0 4px #000;
+    animation:glow 1.5s ease-in-out infinite;
+  }
+  @keyframes glow { 0%,100%{ filter:brightness(1);} 50%{ filter:brightness(1.5);} }
+  .piece.selected { transform:scale(1.1); box-shadow:0 0 0 4px #7fffd4, 0 4px 12px rgba(0,0,0,0.6); }
+  .hint {
+    position:absolute; width:30%; height:30%; border-radius:50%;
+    background:#7fffd4; box-shadow:0 0 12px #7fffd4; z-index:1;
+    animation:pulse 1s ease-in-out infinite;
+  }
+  .hint.cap {
+    width:60%; height:60%; background:transparent;
+    border:4px solid #ffa500; box-shadow:0 0 15px #ffa500;
+  }
+  @keyframes pulse { 0%,100%{ transform:scale(1); opacity:0.8;} 50%{ transform:scale(1.2); opacity:1;} }
+  @keyframes capture { to { transform:scale(0) rotate(360deg); opacity:0; } }
+  .piece.capturing { animation:capture 0.4s forwards; }
+  .particle { position:absolute; width:8px; height:8px; border-radius:50%; pointer-events:none; z-index:10; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔴 หมากฮอส</h1>
+  <div class="setup" id="setup">
+    <select id="level">
+      <option value="1">ง่าย</option>
+      <option value="2" selected>ปานกลาง</option>
+      <option value="3">ยาก</option>
+      <option value="4">โหด</option>
+    </select>
+    <select id="side">
+      <option value="red" selected>เล่นฝ่ายแดง (เดินก่อน)</option>
+      <option value="blue">เล่นฝ่ายน้ำเงิน</option>
+    </select>
+    <button class="primary" id="startBtn">▶️ เริ่มเกม</button>
+  </div>
+  <div class="score" id="score" style="display:none;">
+    <span>🔴 แดง: <span id="redCount">12</span></span>
+    <span>🔵 น้ำเงิน: <span id="blueCount">12</span></span>
+  </div>
+  <div class="status" id="status">เลือกระดับและฝ่าย แล้วกดเริ่มเกม</div>
+  <div class="board-wrap"><div class="board" id="board"></div></div>
+  <div class="setup" style="margin-top:15px;">
+    <button id="undoBtn">↩️ ย้อนกลับ</button>
+    <button id="restartBtn">🔄 เริ่มใหม่</button>
+  </div>
+</div>
+
+<script>
+const SIZE = 8;
+
+class Checkers {
+  constructor() {
+    this.boardEl = document.getElementById('board');
+    this.statusEl = document.getElementById('status');
+    this.started = false;
+    this.locked = false;
+    this.bindButtons();
+    this.drawEmpty();
+  }
+
+  bindButtons() {
+    document.getElementById('startBtn').onclick = () => this.start();
+    document.getElementById('restartBtn').onclick = () => this.start();
+    document.getElementById('undoBtn').onclick = () => this.undo();
+  }
+
+  start() {
+    this.level = parseInt(document.getElementById('level').value);
+    this.human = document.getElementById('side').value; // 'red' or 'blue'
+    this.ai = this.human === 'red' ? 'blue' : 'red';
+    this.flipped = this.human === 'blue';
+    this.board = this.initBoard();
+    this.turn = 'red'; // red moves first
+    this.selected = null;
+    this.legal = [];
+    this.history = [];
+    this.started = true;
+    this.locked = false;
+    document.getElementById('score').style.display = 'flex';
+    this.render();
+    this.updateStatus();
+    // if AI moves first
+    if (this.turn === this.ai) this.aiMove();
+  }
+
+  initBoard() {
+    const b = Array.from({length:SIZE}, () => Array(SIZE).fill(null));
+    for (let r=0;r<3;r++) for (let c=0;c<SIZE;c++)
+      if ((r+c)%2===1) b[r][c] = {color:'blue', king:false};
+    for (let r=5;r<8;r++) for (let c=0;c<SIZE;c++)
+      if ((r+c)%2===1) b[r][c] = {color:'red', king:false};
+    return b;
+  }
+
+  inB(r,c){ return r>=0&&r<SIZE&&c>=0&&c<SIZE; }
+
+  // moves for one piece. capturesOnly=true returns only jumps
+  pieceMoves(board, r, c, capturesOnly) {
+    const p = board[r][c];
+    if (!p) return [];
+    const moves = [];
+    const dirs = p.king ? [[-1,-1],[-1,1],[1,-1],[1,1]]
+      : p.color==='red' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
+    // captures
+    for (const [dr,dc] of dirs) {
+      const mr=r+dr, mc=c+dc, jr=r+2*dr, jc=c+2*dc;
+      if (this.inB(jr,jc) && board[mr] && board[mr][mc] &&
+          board[mr][mc].color!==p.color && !board[jr][jc]) {
+        moves.push({fr:r,fc:c,tr:jr,tc:jc,cap:[mr,mc]});
+      }
+    }
+    if (capturesOnly) return moves;
+    if (moves.length) return moves; // forced capture: if any jump, only jumps
+    // simple moves
+    for (const [dr,dc] of dirs) {
+      const nr=r+dr, nc=c+dc;
+      if (this.inB(nr,nc) && !board[nr][nc])
+        moves.push({fr:r,fc:c,tr:nr,tc:nc,cap:null});
+    }
+    return moves;
+  }
+
+  allMoves(board, color) {
+    let caps = [], simple = [];
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const p = board[r][c];
+      if (p && p.color===color) {
+        for (const m of this.pieceMoves(board,r,c,true)) caps.push(m);
+        if (!caps.length) {
+          // collect simple only if no captures globally - recompute later
+        }
+      }
+    }
+    if (caps.length) return caps; // forced capture rule (global)
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const p = board[r][c];
+      if (p && p.color===color)
+        for (const m of this.pieceMoves(board,r,c,false)) simple.push(m);
+    }
+    return simple;
+  }
+
+  // ---- human interaction ----
+  onSquareClick(r,c) {
+    if (!this.started || this.locked) return;
+    if (this.turn !== this.human) return;
+    const p = this.board[r][c];
+    // try to move to clicked square
+    if (this.selected) {
+      const m = this.legal.find(x => x.tr===r && x.tc===c);
+      if (m) { this.doMove(m, true); return; }
+    }
+    if (p && p.color===this.human) {
+      // enforce forced capture: only allow selecting pieces that have moves in allMoves
+      const all = this.allMoves(this.board, this.human);
+      const pieceMoves = all.filter(x => x.fr===r && x.fc===c);
+      if (pieceMoves.length) {
+        this.selected = [r,c];
+        this.legal = pieceMoves;
+      } else {
+        this.selected = null; this.legal = [];
+      }
+    } else {
+      this.selected = null; this.legal = [];
+    }
+    this.render();
+  }
+
+  async doMove(move, isHuman) {
+    this.locked = true;
+    try {
+      this.history.push(this.snapshot());
+      await this.animateMove(move);
+      const p = this.board[move.fr][move.fc];
+      this.board[move.tr][move.tc] = p;
+      this.board[move.fr][move.fc] = null;
+      if (move.cap) {
+        this.spawnParticles(move.cap[0], move.cap[1], this.board[move.cap[0]][move.cap[1]]?.color);
+        this.board[move.cap[0]][move.cap[1]] = null;
+      }
+      // check multi-jump
+      let canContinue = false;
+      if (move.cap) {
+        const more = this.pieceMoves(this.board, move.tr, move.tc, true);
+        if (more.length) canContinue = true;
+      }
+      // promotion
+      const justPromoted = this.maybePromote(move.tr, move.tc);
+      if (canContinue && !justPromoted) {
+        // same player continues jumping
+        this.render();
+        if (this.turn === this.human) {
+          this.selected = [move.tr, move.tc];
+          this.legal = this.pieceMoves(this.board, move.tr, move.tc, true);
+          this.render();
+          this.locked = false;
+          return;
+        } else {
+          // AI continues
+          this.render();
+          await this.sleep(300);
+          await this.aiContinue(move.tr, move.tc);
+          this.locked = false;
+          this.afterTurn();
+          return;
+        }
+      }
+      // end turn
+      this.selected = null;
+      this.legal = [];
+      this.turn = this.turn==='red' ? 'blue' : 'red';
+      this.render();
+      this.locked = false;
+      this.afterTurn();
+    } catch(e) {
+      console.error(e);
+      this.locked = false;
+    }
+  }
+
+  maybePromote(r,c) {
+    const p = this.board[r][c];
+    if (!p || p.king) return false;
+    if ((p.color==='red' && r===0) || (p.color==='blue' && r===SIZE-1)) {
+      p.king = true;
+      this.spawnParticles(r,c,'#ffd700');
+      return true;
+    }
+    return false;
+  }
+
+  afterTurn() {
+    this.updateScore();
+    const winner = this.checkWinner();
+    if (winner) {
+      this.statusEl.textContent = winner===this.human
+        ? '🏆 คุณชนะแล้ว!' : '😢 คอมชนะ ลองใหม่นะ';
+      this.started = false;
+      return;
+    }
+    this.updateStatus();
+    if (this.turn === this.ai) this.aiMove();
+  }
+
+  checkWinner() {
+    const red = this.allMoves(this.board,'red').length;
+    const blue = this.allMoves(this.board,'blue').length;
+    let rc=0, bc=0;
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const p=this.board[r][c];
+      if (p) p.color==='red'?rc++:bc++;
+    }
+    if (rc===0 || red===0) return 'blue';
+    if (bc===0 || blue===0) return 'red';
+    return null;
+  }
+
+  // ---- AI ----
+  aiMove() {
+    if (!this.started) return;
+    this.locked = true;
+    this.statusEl.textContent = '🤖 คอมกำลังคิด...';
+    setTimeout(async () => {
+      try {
+        const moves = this.allMoves(this.board, this.ai);
+        if (!moves.length) { this.locked=false; this.afterTurn(); return; }
+        const depth = this.level + 1;
+        let best = null, bestVal = -Infinity;
+        for (const m of moves) {
+          const nb = this.cloneBoard(this.board);
+          this.simMove(nb, m);
+          const val = this.minimax(nb, depth-1, -Infinity, Infinity, false);
+          if (val > bestVal) { bestVal = val; best = m; }
+        }
+        if (this.level===1 && Math.random()<0.3) best = moves[Math.floor(Math.random()*moves.length)];
+        this.locked = false;
+        await this.doMove(best || moves[0], false);
+      } catch(e) {
+        console.error(e);
+        this.locked = false;
+      }
+    }, 300);
+  }
+
+  async aiContinue(r,c) {
+    const more = this.pieceMoves(this.board, r, c, true);
+    if (!more.length) return;
+    const m = more[0];
+    this.history.push(this.snapshot());
+    await this.animateMove(m);
+    const p = this.board[m.fr][m.fc];
+    this.board[m.tr][m.tc] = p; this.board[m.fr][m.fc] = null;
+    if (m.cap) {
+      this.spawnParticles(m.cap[0], m.cap[1], this.board[m.cap[0]][m.cap[1]]?.color);
+      this.board[m.cap[0]][m.cap[1]] = null;
+    }
+    const promoted = this.maybePromote(m.tr, m.tc);
+    this.render();
+    if (!promoted) {
+      const again = this.pieceMoves(this.board, m.tr, m.tc, true);
+      if (again.length) { await this.sleep(300); await this.aiContinue(m.tr, m.tc); return; }
+    }
+    this.turn = this.turn==='red'?'blue':'red';
+    this.render();
+  }
+
+  minimax(board, depth, alpha, beta, maximizing) {
+    if (depth===0) return this.evaluate(board);
+    const color = maximizing ? this.ai : this.human;
+    const moves = this.allMoves(board, color);
+    if (!moves.length) return maximizing ? -10000 : 10000;
+    if (maximizing) {
+      let best = -Infinity;
+      for (const m of moves) {
+        const nb = this.cloneBoard(board);
+        this.simMove(nb, m);
+        best = Math.max(best, this.minimax(nb, depth-1, alpha, beta, false));
+        alpha = Math.max(alpha, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    } else {
+      let best = Infinity;
+      for (const m of moves) {
+        const nb = this.cloneBoard(board);
+        this.simMove(nb, m);
+        best = Math.min(best, this.minimax(nb, depth-1, alpha, beta, true));
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break;
+      }
+      return best;
+    }
+  }
+
+  simMove(board, m) {
+    const p = board[m.fr][m.fc];
+    board[m.tr][m.tc] = {color:p.color, king:p.king};
+    board[m.fr][m.fc] = null;
+    if (m.cap) board[m.cap[0]][m.cap[1]] = null;
+    const np = board[m.tr][m.tc];
+    if (!np.king) {
+      if ((np.color==='red'&&m.tr===0)||(np.color==='blue'&&m.tr===SIZE-1)) np.king=true;
+    }
+    // chain captures for AI eval
+    if (m.cap) {
+      const more = this.pieceMoves(board, m.tr, m.tc, true);
+      if (more.length) this.simMove(board, more[0]);
+    }
+  }
+
+  evaluate(board) {
+    let score = 0;
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const p = board[r][c];
+      if (!p) continue;
+      let v = p.king ? 5 : 3;
+      // advance bonus
+      if (!p.king) v += p.color==='red' ? (7-r)*0.1 : r*0.1;
+      score += p.color===this.ai ? v : -v;
+    }
+    return score;
+  }
+
+  cloneBoard(board) {
+    return board.map(row => row.map(p => p ? {color:p.color, king:p.king} : null));
+  }
+
+  snapshot() {
+    return { board:this.cloneBoard(this.board), turn:this.turn };
+  }
+
+  undo() {
+    if (!this.history.length || this.locked) return;
+    // undo back to player's turn
+    let snap;
+    do { snap = this.history.pop(); } 
+    while (this.history.length && snap.turn !== this.human);
+    this.board = snap.board;
+    this.turn = snap.turn;
+    this.selected = null; this.legal = [];
+    this.started = true;
+    this.render();
+    this.updateStatus();
+    this.updateScore();
+  }
+
+  // ---- animation ----
+  animateMove(move) {
+    return new Promise(resolve => {
+      const fromEl = this.getSquareEl(move.fr, move.fc);
+      const pieceEl = fromEl ? fromEl.querySelector('.piece') : null;
+      if (!pieceEl) { resolve(); return; }
+      const toEl = this.getSquareEl(move.tr, move.tc);
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+      const dx = toRect.left - fromRect.left;
+      const dy = toRect.top - fromRect.top;
+      pieceEl.style.transition = 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+      pieceEl.style.transform = `translate(${dx}px,${dy}px)`;
+      pieceEl.style.zIndex = 5;
+      if (move.cap) {
+        const capEl = this.getSquareEl(move.cap[0], move.cap[1]);
+        const capPiece = capEl ? capEl.querySelector('.piece') : null;
+        if (capPiece) setTimeout(()=>capPiece.classList.add('capturing'), 200);
+      }
+      setTimeout(resolve, 380);
+    });
+  }
+
+  spawnParticles(r,c,color) {
+    const el = this.getSquareEl(r,c);
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top + rect.height/2;
+    const col = color==='red' ? '#ff5252' : color==='blue' ? '#448aff' : (color||'#ffd700');
+    for (let i=0;i<12;i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.background = col;
+      p.style.left = cx+'px';
+      p.style.top = cy+'px';
+      document.body.appendChild(p);
+      const ang = (i/12)*Math.PI*2;
+      const dist = 40 + Math.random()*30;
+      const tx = Math.cos(ang)*dist, ty = Math.sin(ang)*dist;
+      p.animate([
+        {transform:'translate(0,0) scale(1)', opacity:1},
+        {transform:`translate(${tx}px,${ty}px) scale(0)`, opacity:0}
+      ], {duration:500, easing:'ease-out'});
+      setTimeout(()=>p.remove(), 500);
+    }
+  }
+
+  sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  // ---- render ----
+  getSquareEl(r,c) {
+    return this.boardEl.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  }
+
+  drawEmpty() {
+    this.boardEl.innerHTML = '';
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const sq = document.createElement('div');
+      sq.className = 'square ' + ((r+c)%2===0?'light':'dark');
+      sq.dataset.r = r; sq.dataset.c = c;
+      this.boardEl.appendChild(sq);
+    }
+  }
+
+  render() {
+    this.boardEl.innerHTML = '';
+    const rows = this.flipped ? [...Array(SIZE).keys()].reverse() : [...Array(SIZE).keys()];
+    const cols = this.flipped ? [...Array(SIZE).keys()].reverse() : [...Array(SIZE).keys()];
+    for (const r of rows) for (const c of cols) {
+      const sq = document.createElement('div');
+      sq.className = 'square ' + ((r+c)%2===0?'light':'dark');
+      sq.dataset.r = r; sq.dataset.c = c;
+      if ((r+c)%2===1) sq.onclick = () => this.onSquareClick(r,c);
+
+      const p = this.board[r][c];
+      if (p) {
+        const pe = document.createElement('div');
+        pe.className = 'piece ' + p.color + (p.king?' king':'');
+        if (this.selected && this.selected[0]===r && this.selected[1]===c)
+          pe.classList.add('selected');
+        sq.appendChild(pe);
+      }
+      const hint = this.legal.find(m => m.tr===r && m.tc===c);
+      if (hint) {
+        const h = document.createElement('div');
+        h.className = 'hint' + (hint.cap?' cap':'');
+        sq.appendChild(h);
+      }
+      this.boardEl.appendChild(sq);
+    }
+  }
+
+  updateStatus() {
+    if (!this.started) return;
+    this.statusEl.textContent = this.turn===this.human ? '🟢 ตาของคุณ' : '🤖 ตาของคอม';
+  }
+
+  updateScore() {
+    let rc=0, bc=0;
+    for (let r=0;r<SIZE;r++) for (let c=0;c<SIZE;c++) {
+      const p=this.board[r][c];
+      if (p) p.color==='red'?rc++:bc++;
+    }
+    document.getElementById('redCount').textContent = rc;
+    document.getElementById('blueCount').textContent = bc;
+  }
+}
+
+const game = new Checkers();
+</script>
+</body>
+</html>
